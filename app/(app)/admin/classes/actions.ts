@@ -38,3 +38,15 @@ export async function assignTeacherAction(classId: string, teacherId: string | n
   if (error) throw new Error(error.message)
   revalidatePath('/admin/classes')
 }
+
+export async function assignBuildingAction(classId: string, buildingId: string | null) {
+  const supabase = await assertCallerIsAdmin()
+
+  const { error } = await supabase
+    .from('classes')
+    .update({ building_id: buildingId })
+    .eq('id', classId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin/classes')
+}

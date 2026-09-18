@@ -12,8 +12,7 @@ const RANGES: { value: string; label: string }[] = [
 const STATUSES: { value: string; label: string }[] = [
   { value: 'all', label: 'Все' },
   { value: 'active', label: 'Активные' },
-  { value: 'used', label: 'Использованы' },
-  { value: 'expired', label: 'Истекли' },
+  { value: 'used', label: 'Ребёнок вышел' },
   { value: 'rejected', label: 'Отклонены' },
   { value: 'cancelled', label: 'Отменены' },
 ]
@@ -36,15 +35,17 @@ export default function HistoryFilters({
   }
 
   return (
-    <div className="flex flex-wrap gap-4 text-sm">
-      <div className="flex gap-1">
+    <div className="flex flex-wrap items-center gap-3 text-sm">
+      <div className="flex gap-1 rounded-lg border border-[var(--color-border)] bg-white p-1">
         {RANGES.map((r) => (
           <button
             key={r.value}
             onClick={() => updateParam('range', r.value)}
-            className={`rounded px-3 py-1 ${
-              currentRange === r.value ? 'bg-black text-white' : 'bg-gray-100'
-            }`}
+            className={
+              currentRange === r.value
+                ? 'rounded-md bg-[var(--color-primary)] px-3 py-1 text-white'
+                : 'rounded-md px-3 py-1 text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)]'
+            }
           >
             {r.label}
           </button>
@@ -54,7 +55,7 @@ export default function HistoryFilters({
       <select
         value={currentStatus}
         onChange={(e) => updateParam('status', e.target.value)}
-        className="rounded border px-2 py-1"
+        className="h-9 rounded-lg border border-[var(--color-border)] bg-white px-2 text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
       >
         {STATUSES.map((s) => (
           <option key={s.value} value={s.value}>{s.label}</option>

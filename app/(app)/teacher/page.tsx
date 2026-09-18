@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import PassForm from './pass-form'
-import PendingList from './pending-list'
 import ActiveList from './active-list'
+import ExitedToday from './exited-today'
 
 export default async function TeacherPage() {
   const supabase = await createClient()
@@ -13,7 +13,13 @@ export default async function TeacherPage() {
     .eq('homeroom_teacher_id', user!.id)
     .single()
 
-  if (!klass) return <p>Класс не назначен</p>
+  if (!klass) {
+    return (
+      <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 text-sm text-[var(--color-ink-muted)]">
+        Класс ещё не назначен. Обратитесь к администратору.
+      </div>
+    )
+  }
 
   const { data: students } = await supabase
     .from('students')
@@ -22,37 +28,44 @@ export default async function TeacherPage() {
     .eq('is_active', true)
     .order('full_name')
 
-  const { data: pending } = await supabase
-    .from('passes')
-    .select('id, requested_departure_at, reason, students(full_name)')
-    .eq('class_id', klass.id)
-    .eq('status', 'pending')
-    .order('requested_departure_at')
-
   const { data: active } = await supabase
     .from('passes')
-    .select('id, requested_departure_at, status, qr_token, qr_expires_at, students(full_name)')
+    .select('id, requested_departure_at, students(full_name)')
     .eq('class_id', klass.id)
-    .in('status', ['approved', 'qr_issued'])
+    .eq('status', 'approved')
     .order('requested_departure_at')
 
-  return (
-    <div className="space-y-8">
-      <h1 className="text-lg font-semibold">{klass.name}</h1>
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
 
-      <section>
-        <h2 className="mb-2 font-medium">Новый пропуск</h2>
+  const { data: exitedToday } = await supabase
+    .from('passes')
+    .select('id, used_at, students(full_name)')
+    .eq('class_id', klass.id)
+    .eq('status', 'used')
+    .gte('used_at', todayStart.toISOString())
+    .order('used_at', { ascending: false })
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-10">
+      <div>
+        <p className="text-sm text-[var(--color-ink-muted)]">Классный руководитель</p>
+        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">{klass.name}</h1>
+      </div>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Новый пропуск</h2>
         <PassForm students={students ?? []} />
       </section>
 
-      <section>
-        <h2 className="mb-2 font-medium">Заявки на подтверждение</h2>
-        <PendingList passes={pending ?? []} />
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Активные пропуска</h2>
+        <ActiveList passes={active ?? []} classId={klass.id} />
       </section>
 
-      <section>
-        <h2 className="mb-2 font-medium">Активные пропуска сегодня</h2>
-        <ActiveList passes={active ?? []} />
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Вышли сегодня</h2>
+        <ExitedToday passes={exitedToday ?? []} />
       </section>
     </div>
   )

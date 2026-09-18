@@ -3,13 +3,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const ROLE_HOME: Record<string, string> = {
   teacher: '/teacher',
-  security: '/scan',
+  security: '/duty',
   admin: '/admin',
 }
 
 const ROUTE_ROLES: { prefix: string; roles: string[] }[] = [
   { prefix: '/teacher', roles: ['teacher', 'admin'] },
-  { prefix: '/scan', roles: ['security', 'admin'] },
+  { prefix: '/duty', roles: ['security', 'admin'] },
   { prefix: '/admin', roles: ['admin'] },
 ]
 

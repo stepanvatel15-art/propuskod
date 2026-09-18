@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 
 export type DateRange = 'today' | '7d' | '30d' | 'all'
-export type StatusFilter = 'all' | 'active' | 'used' | 'expired' | 'rejected' | 'cancelled'
+export type StatusFilter = 'all' | 'active' | 'used' | 'rejected' | 'cancelled'
 
 export type PassEventRow = {
   id: number
@@ -17,7 +17,6 @@ export type PassWithEvents = {
   status: string
   reason: string | null
   requested_departure_at: string
-  qr_expires_at: string | null
   used_at: string | null
   created_at: string
   events: PassEventRow[]
@@ -39,7 +38,7 @@ function dateRangeStart(range: DateRange): string | null {
   return null
 }
 
-const ACTIVE_STATUSES = ['pending', 'approved', 'qr_issued']
+const ACTIVE_STATUSES = ['pending', 'approved']
 
 export async function getStudentHistory(
   studentId: string,
@@ -58,7 +57,7 @@ export async function getStudentHistory(
   let query = supabase
     .from('passes')
     .select(
-      `id, type, status, reason, requested_departure_at, qr_expires_at, used_at, created_at,
+      `id, type, status, reason, requested_departure_at, used_at, created_at,
        pass_events ( id, event_type, actor_id, metadata, created_at )`
     )
     .eq('student_id', studentId)

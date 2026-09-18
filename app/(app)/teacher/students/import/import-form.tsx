@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { importStudentsAction, type ImportSummary } from './actions'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export default function ImportStudentsForm({ classId }: { classId: string }) {
   const [summary, setSummary] = useState<ImportSummary | null>(null)
@@ -9,68 +11,70 @@ export default function ImportStudentsForm({ classId }: { classId: string }) {
   const [isPending, startTransition] = useTransition()
 
   return (
-    <div className="max-w-xl space-y-4">
-      <h1 className="text-lg font-semibold">Загрузка списка класса</h1>
-      <p className="text-sm text-gray-500">
-        Файл .xlsx с колонками «ФИО» и «Дата рождения» в первой строке.
-      </p>
+    <div className="mx-auto max-w-xl space-y-6">
+      <div>
+        <h1 className="text-lg font-semibold text-[var(--color-ink)]">Загрузка списка класса</h1>
+        <p className="text-sm text-[var(--color-ink-muted)]">
+          Файл .xlsx с колонками «ФИО» и «Дата рождения» в первой строке.
+        </p>
+      </div>
 
-      <form
-        action={(formData) => {
-          formData.set('classId', classId)
-          setError(null)
-          setSummary(null)
-          startTransition(async () => {
-            try {
-              const res = await importStudentsAction(formData)
-              setSummary(res)
-            } catch (e) {
-              setError(e instanceof Error ? e.message : 'Ошибка загрузки')
-            }
-          })
-        }}
-        className="space-y-3"
-      >
-        <input
-          type="file"
-          name="file"
-          accept=".xlsx,.xls"
-          required
-          className="block w-full text-sm"
-        />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+      <Card className="space-y-4 p-5">
+        <form
+          action={(formData) => {
+            formData.set('classId', classId)
+            setError(null)
+            setSummary(null)
+            startTransition(async () => {
+              try {
+                const res = await importStudentsAction(formData)
+                setSummary(res)
+              } catch (e) {
+                setError(e instanceof Error ? e.message : 'Ошибка загрузки')
+              }
+            })
+          }}
+          className="space-y-3"
         >
-          {isPending ? 'Загружаем…' : 'Загрузить'}
-        </button>
-      </form>
+          <input
+            type="file"
+            name="file"
+            accept=".xlsx,.xls"
+            required
+            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)]"
+          />
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Загружаем…' : 'Загрузить'}
+          </Button>
+        </form>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+            {error}
+          </p>
+        )}
+      </Card>
 
       {summary && (
-        <div className="rounded border p-4 text-sm">
-          <p>Всего строк: {summary.rowsTotal}</p>
-          <p className="text-green-700">Создано: {summary.rowsCreated}</p>
-          <p className="text-blue-700">Обновлено/подтверждено: {summary.rowsUpdated}</p>
-          <p className="text-amber-700">Пропущено с ошибками: {summary.rowsSkipped}</p>
+        <Card className="space-y-2 p-5 text-sm">
+          <p className="text-[var(--color-ink)]">Всего строк: {summary.rowsTotal}</p>
+          <p className="text-[var(--color-success)]">Создано: {summary.rowsCreated}</p>
+          <p className="text-[var(--color-primary)]">Обновлено/подтверждено: {summary.rowsUpdated}</p>
+          <p className="text-[var(--color-accent)]">Пропущено с ошибками: {summary.rowsSkipped}</p>
 
           {summary.errors.length > 0 && (
             <details className="mt-2">
-              <summary className="cursor-pointer text-amber-700">
+              <summary className="cursor-pointer text-[var(--color-accent)]">
                 Показать ошибки ({summary.errors.length})
               </summary>
-              <ul className="mt-2 space-y-1">
+              <ul className="mt-2 space-y-1 text-[var(--color-ink-muted)]">
                 {summary.errors.map((e, i) => (
-                  <li key={i}>
-                    Строка {e.rowNumber}: {e.reason}
-                  </li>
+                  <li key={i}>Строка {e.rowNumber}: {e.reason}</li>
                 ))}
               </ul>
             </details>
           )}
-        </div>
+        </Card>
       )}
     </div>
   )

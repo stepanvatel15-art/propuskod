@@ -1,33 +1,28 @@
 import type { PassWithEvents } from '@/lib/history/get-student-history'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Ожидает подтверждения',
-  approved: 'Подтверждён',
+  approved: 'Подтверждён, ждёт дежурного',
   rejected: 'Отклонён',
-  qr_issued: 'QR выдан',
-  used: 'Использован',
-  expired: 'Истёк',
+  used: 'Ребёнок вышел',
   cancelled: 'Отменён',
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-800',
-  approved: 'bg-blue-100 text-blue-800',
-  rejected: 'bg-gray-200 text-gray-700',
-  qr_issued: 'bg-purple-100 text-purple-800',
-  used: 'bg-green-100 text-green-800',
-  expired: 'bg-red-100 text-red-800',
-  cancelled: 'bg-gray-200 text-gray-700',
+const STATUS_TONE: Record<string, 'neutral' | 'accent' | 'success' | 'danger' | 'primary'> = {
+  pending: 'accent',
+  approved: 'primary',
+  rejected: 'neutral',
+  used: 'success',
+  cancelled: 'neutral',
 }
 
 const EVENT_LABELS: Record<string, string> = {
   created: 'Создан пропуск',
   approved: 'Подтверждён учителем',
   rejected: 'Отклонён учителем',
-  qr_generated: 'Сгенерирован QR',
-  scanned_ok: 'Отсканирован на посту',
-  scanned_denied: 'Попытка скана отклонена',
-  expired: 'Срок действия истёк',
+  released: 'Ребёнок вышел (отметил дежурный)',
   cancelled: 'Отменён',
 }
 
@@ -42,31 +37,33 @@ function fmt(dt: string) {
 
 export default function EventTimeline({ pass }: { pass: PassWithEvents }) {
   return (
-    <div className="rounded border p-4">
+    <Card className="p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium text-[var(--color-ink)]">
             {pass.type === 'request' ? 'Заявка' : 'Прямой пропуск'}
           </span>
-          <span className="ml-2 text-sm text-gray-500">
+          <span className="ml-2 text-sm text-[var(--color-ink-muted)]">
             выход в {fmt(pass.requested_departure_at)}
           </span>
-          {pass.reason && <span className="ml-2 text-sm text-gray-400">· {pass.reason}</span>}
+          {pass.reason && (
+            <span className="ml-2 text-sm text-[var(--color-ink-muted)]">· {pass.reason}</span>
+          )}
         </div>
-        <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[pass.status] ?? ''}`}>
+        <Badge tone={STATUS_TONE[pass.status] ?? 'neutral'}>
           {STATUS_LABELS[pass.status] ?? pass.status}
-        </span>
+        </Badge>
       </div>
 
-      <ol className="space-y-2 border-l pl-4">
+      <ol className="space-y-2 border-l border-[var(--color-border)] pl-4">
         {pass.events.map((e) => (
           <li key={e.id} className="relative text-sm">
-            <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-gray-400" />
-            <span className="text-gray-700">{EVENT_LABELS[e.event_type] ?? e.event_type}</span>
-            <span className="ml-2 text-gray-400">{fmt(e.created_at)}</span>
+            <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+            <span className="text-[var(--color-ink)]">{EVENT_LABELS[e.event_type] ?? e.event_type}</span>
+            <span className="ml-2 text-[var(--color-ink-muted)]">{fmt(e.created_at)}</span>
           </li>
         ))}
       </ol>
-    </div>
+    </Card>
   )
 }

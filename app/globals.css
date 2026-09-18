@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Токены дизайна — школьная система пропусков.
+  Ориентир: визуальный язык школьных/городских порталов Москвы
+  (school.mos.ru, МЭШ) и школы 1353 в Зеленограде — тёмно-синее
+  «форменное» шасси интерфейса (шапка/боковая панель), светлый
+  рабочий контент, сдержанный акцент. Один шрифт (Inter),
+  чёткая, некрикливая иерархия — инструмент для ежедневной работы,
+  а не промо-лендинг.
+*/
+
+@theme {
+  --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
+
+  --color-ink: #101b2d;          /* основной текст */
+  --color-ink-muted: #5b6b85;    /* вторичный текст */
+
+  --color-primary: #1b4b91;      /* бренд-синий: кнопки, ссылки, активные состояния */
+  --color-primary-dark: #123566; /* шасси интерфейса: боковая панель, hover/pressed */
+  --color-primary-light: #e8eef8;/* лёгкая подложка под primary-элементами */
+
+  --color-surface: #f2f5fa;      /* фон страницы */
+  --color-surface-card: #ffffff; /* карточки/панели */
+  --color-border: #dee4ee;       /* тонкие границы */
+
+  --color-accent: #d98e2b;       /* тёплый акцент — только "требует внимания" */
+  --color-accent-light: #fbf1de;
+
+  --color-success: #1e8e5a;
+  --color-success-light: #e6f4ed;
+  --color-danger: #c4362f;
+  --color-danger-light: #fbeae9;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Видимый фокус для клавиатурной навигации — не убираем outline, а стилизуем */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Плавная, но не навязчивая обратная связь для интерактивных элементов */
+button,
+a {
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

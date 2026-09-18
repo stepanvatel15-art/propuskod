@@ -7,7 +7,7 @@ export default async function AdminClassesPage() {
 
   const { data: classes } = await supabase
     .from('classes')
-    .select('id, name, homeroom_teacher_id, profiles(full_name)')
+    .select('id, name, homeroom_teacher_id, building_id, profiles(full_name)')
     .order('name')
 
   const { data: teachers } = await supabase
@@ -17,18 +17,23 @@ export default async function AdminClassesPage() {
     .eq('is_active', true)
     .order('full_name')
 
-  return (
-    <div className="max-w-3xl space-y-8">
-      <h1 className="text-lg font-semibold">Классы</h1>
+  const { data: buildings } = await supabase
+    .from('buildings')
+    .select('id, name')
+    .order('name')
 
-      <section>
-        <h2 className="mb-2 font-medium">Новый класс</h2>
+  return (
+    <div className="mx-auto max-w-3xl space-y-10">
+      <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Классы</h1>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Новый класс</h2>
         <CreateClassForm />
       </section>
 
-      <section>
-        <h2 className="mb-2 font-medium">Все классы</h2>
-        <ClassesTable classes={classes ?? []} teachers={teachers ?? []} />
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Все классы</h2>
+        <ClassesTable classes={classes ?? []} teachers={teachers ?? []} buildings={buildings ?? []} />
       </section>
     </div>
   )

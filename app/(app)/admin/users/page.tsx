@@ -11,16 +11,16 @@ export default async function AdminUsersPage() {
     .order('full_name')
 
   return (
-    <div className="max-w-3xl space-y-8">
-      <h1 className="text-lg font-semibold">Пользователи</h1>
+    <div className="mx-auto max-w-3xl space-y-10">
+      <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Пользователи</h1>
 
-      <section>
-        <h2 className="mb-2 font-medium">Новый пользователь</h2>
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Новый пользователь</h2>
         <CreateUserForm />
       </section>
 
-      <section>
-        <h2 className="mb-2 font-medium">Все пользователи</h2>
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Все пользователи</h2>
         <UsersTable users={users ?? []} />
       </section>
     </div>

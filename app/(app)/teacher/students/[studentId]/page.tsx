@@ -8,7 +8,7 @@ import HistoryFilters from './history-filters'
 import EventTimeline from './event-timeline'
 
 const VALID_RANGES: DateRange[] = ['today', '7d', '30d', 'all']
-const VALID_STATUSES: StatusFilter[] = ['all', 'active', 'used', 'expired', 'rejected', 'cancelled']
+const VALID_STATUSES: StatusFilter[] = ['all', 'active', 'used', 'rejected', 'cancelled']
 
 export default async function StudentHistoryPage({
   params,
@@ -32,10 +32,10 @@ export default async function StudentHistoryPage({
   if (!student) notFound()
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">{student.full_name}</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-lg font-semibold text-[var(--color-ink)]">{student.full_name}</h1>
+        <p className="text-sm text-[var(--color-ink-muted)]">
           Дата рождения: {new Date(student.birth_date).toLocaleDateString('ru-RU')}
         </p>
       </div>
@@ -43,7 +43,9 @@ export default async function StudentHistoryPage({
       <HistoryFilters currentRange={range} currentStatus={status} />
 
       {passes.length === 0 ? (
-        <p className="text-sm text-gray-500">Нет пропусков за выбранный период</p>
+        <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
+          Нет пропусков за выбранный период
+        </p>
       ) : (
         <div className="space-y-4">
           {passes.map((p) => (

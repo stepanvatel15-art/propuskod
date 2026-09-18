@@ -9,61 +9,39 @@ type CreatePassInput = {
   reason?: string
 }
 
-async function getStudentClassId(
+async function getStudentClassInfo(
   supabase: Awaited<ReturnType<typeof createClient>>,
   studentId: string
 ) {
   const { data, error } = await supabase
     .from('students')
-    .select('id, class_id')
+    .select('id, class_id, classes(building_id)')
     .eq('id', studentId)
     .single()
 
   if (error || !data) throw new Error('Ученик не найден или нет доступа')
-  return data.class_id
+  const classes = data.classes as unknown as { building_id: string | null } | null
+  return { classId: data.class_id, buildingId: classes?.building_id ?? null }
 }
 
-function assertFutureTime(iso: string) {
-  if (new Date(iso).getTime() <= Date.now()) {
-    throw new Error('Время выхода должно быть в будущем')
+/** Учитель сам решает и сам фиксирует время выхода — отдельного этапа
+ *  подтверждения больше нет: у детей может не быть телефона, чтобы
+ *  подавать заявку самим, поэтому учитель всегда действует за них. */
+export async function createPassAction(input: CreatePassInput) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Не авторизован')
+
+  if (!input.requestedDepartureAt) {
+    throw new Error('Укажите время выхода')
   }
-}
 
-/** Сценарий 1: заявка, требует подтверждения учителем */
-export async function createPassRequestAction(input: CreatePassInput) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
-
-  assertFutureTime(input.requestedDepartureAt)
-  const classId = await getStudentClassId(supabase, input.studentId)
+  const { classId, buildingId } = await getStudentClassInfo(supabase, input.studentId)
 
   const { error } = await supabase.from('passes').insert({
     student_id: input.studentId,
     class_id: classId,
-    type: 'request',
-    status: 'pending',
-    requested_departure_at: input.requestedDepartureAt,
-    reason: input.reason ?? null,
-    created_by: user.id,
-  })
-
-  if (error) throw new Error(error.message)
-  revalidatePath('/teacher')
-}
-
-/** Сценарий 2: учитель сразу выписывает пропуск, без стадии заявки */
-export async function createDirectPassAction(input: CreatePassInput) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
-
-  assertFutureTime(input.requestedDepartureAt)
-  const classId = await getStudentClassId(supabase, input.studentId)
-
-  const { error } = await supabase.from('passes').insert({
-    student_id: input.studentId,
-    class_id: classId,
+    building_id: buildingId,
     type: 'direct',
     status: 'approved',
     requested_departure_at: input.requestedDepartureAt,
@@ -77,31 +55,20 @@ export async function createDirectPassAction(input: CreatePassInput) {
   revalidatePath('/teacher')
 }
 
-export async function approvePassAction(passId: string) {
+/** Отмена ошибочного пропуска — учитель может исправить свою же опечатку
+ *  (не тот ученик, не то время) до того, как дежурный его обработает.
+ *  Это "мягкое" удаление: статус меняется на cancelled, запись остаётся
+ *  в истории, а не пропадает бесследно. */
+export async function cancelPassAction(passId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Не авторизован')
 
   const { error } = await supabase
     .from('passes')
-    .update({ status: 'approved', approved_by: user.id, approved_at: new Date().toISOString() })
+    .update({ status: 'cancelled' })
     .eq('id', passId)
-    .eq('status', 'pending')
-
-  if (error) throw new Error(error.message)
-  revalidatePath('/teacher')
-}
-
-export async function rejectPassAction(passId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
-
-  const { error } = await supabase
-    .from('passes')
-    .update({ status: 'rejected', approved_by: user.id, approved_at: new Date().toISOString() })
-    .eq('id', passId)
-    .eq('status', 'pending')
+    .eq('status', 'approved')
 
   if (error) throw new Error(error.message)
   revalidatePath('/teacher')
