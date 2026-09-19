@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { moscowTodayStartISO } from '@/lib/format/datetime'
 
 export type DateRange = 'today' | '7d' | '30d' | 'all'
 export type StatusFilter = 'all' | 'active' | 'used' | 'rejected' | 'cancelled'
@@ -28,11 +29,7 @@ export type StudentHistory = {
 }
 
 function dateRangeStart(range: DateRange): string | null {
-  const now = new Date()
-  if (range === 'today') {
-    now.setHours(0, 0, 0, 0)
-    return now.toISOString()
-  }
+  if (range === 'today') return moscowTodayStartISO()
   if (range === '7d') return new Date(Date.now() - 7 * 24 * 3600_000).toISOString()
   if (range === '30d') return new Date(Date.now() - 30 * 24 * 3600_000).toISOString()
   return null

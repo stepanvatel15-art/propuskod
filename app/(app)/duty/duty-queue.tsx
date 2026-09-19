@@ -4,6 +4,7 @@ import { useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { markPassUsedAction, cancelPassAction } from './actions'
+import { formatTime } from '@/lib/format/datetime'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -57,7 +58,7 @@ export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; 
               <p className="text-sm font-medium text-[var(--color-ink)]">{p.students?.full_name}</p>
               <p className="text-xs text-[var(--color-ink-muted)]">
                 {p.classes?.name} · заявлено на{' '}
-                {new Date(p.requested_departure_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                {formatTime(p.requested_departure_at)}
                 {p.reason ? ` · ${p.reason}` : ''}
               </p>
               <Badge tone={isDutyIssued ? 'accent' : 'primary'} className="mt-1.5">

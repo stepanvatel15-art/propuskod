@@ -7,6 +7,7 @@ import { cancelPassAction } from './actions'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { formatTime } from '@/lib/format/datetime'
 
 type ActivePass = {
   id: string
@@ -47,7 +48,7 @@ export default function ActiveList({ passes, classId }: { passes: ActivePass[]; 
           <div>
             <p className="text-sm font-medium text-[var(--color-ink)]">{p.students?.full_name}</p>
             <p className="text-xs text-[var(--color-ink-muted)]">
-              Выход в {new Date(p.requested_departure_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+              Выход в {formatTime(p.requested_departure_at)}
             </p>
           </div>
           <div className="flex items-center gap-2">

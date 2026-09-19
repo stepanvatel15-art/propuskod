@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import PassForm from './pass-form'
 import ActiveList from './active-list'
 import ExitedToday from './exited-today'
+import { moscowTodayStartISO } from '@/lib/format/datetime'
 
 type PassRow = { id: string; requested_departure_at: string; students: { full_name: string } | null }
 type ExitedRow = { id: string; used_at: string | null; students: { full_name: string } | null }
@@ -38,15 +39,12 @@ export default async function TeacherPage() {
     .eq('status', 'approved')
     .order('requested_departure_at')
 
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
-
   const { data: exitedToday } = await supabase
     .from('passes')
     .select('id, used_at, students(full_name)')
     .eq('class_id', klass.id)
     .eq('status', 'used')
-    .gte('used_at', todayStart.toISOString())
+    .gte('used_at', moscowTodayStartISO())
     .order('used_at', { ascending: false })
 
   return (

@@ -6,6 +6,7 @@ import {
 } from '@/lib/history/get-student-history'
 import HistoryFilters from './history-filters'
 import EventTimeline from './event-timeline'
+import { formatDate } from '@/lib/format/datetime'
 
 const VALID_RANGES: DateRange[] = ['today', '7d', '30d', 'all']
 const VALID_STATUSES: StatusFilter[] = ['all', 'active', 'used', 'rejected', 'cancelled']
@@ -36,7 +37,7 @@ export default async function StudentHistoryPage({
       <div>
         <h1 className="text-lg font-semibold text-[var(--color-ink)]">{student.full_name}</h1>
         <p className="text-sm text-[var(--color-ink-muted)]">
-          Дата рождения: {new Date(student.birth_date).toLocaleDateString('ru-RU')}
+          Дата рождения: {formatDate(student.birth_date)}
         </p>
       </div>
 

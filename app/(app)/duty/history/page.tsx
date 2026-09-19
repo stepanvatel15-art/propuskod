@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import DateFilter from './date-filter'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { formatDateTime, moscowTodayStartISO } from '@/lib/format/datetime'
 
 type DateRange = 'today' | '7d' | '30d' | 'all'
 
@@ -16,8 +17,7 @@ type HistoryRow = {
 }
 
 function rangeStart(range: DateRange): string | null {
-  const now = new Date()
-  if (range === 'today') { now.setHours(0, 0, 0, 0); return now.toISOString() }
+  if (range === 'today') return moscowTodayStartISO()
   if (range === '7d') return new Date(Date.now() - 7 * 24 * 3600_000).toISOString()
   if (range === '30d') return new Date(Date.now() - 30 * 24 * 3600_000).toISOString()
   return null
@@ -96,7 +96,7 @@ export default async function DutyHistoryPage({
                   </Badge>
                 </div>
                 <Badge tone="success">
-                  Вышел в {p.used_at ? new Date(p.used_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
+                  Вышел в {p.used_at ? formatDateTime(p.used_at) : '—'}
                 </Badge>
               </Card>
             )

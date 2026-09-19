@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { formatTime } from '@/lib/format/datetime'
 
 type ExitedPass = {
   id: string
@@ -22,7 +23,7 @@ export default function ExitedToday({ passes }: { passes: ExitedPass[] }) {
         <Card key={p.id} className="flex items-center justify-between p-4">
           <p className="text-sm font-medium text-[var(--color-ink)]">{p.students?.full_name}</p>
           <Badge tone="success">
-            Вышел в {p.used_at ? new Date(p.used_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '—'}
+            Вышел в {p.used_at ? formatTime(p.used_at) : '—'}
           </Badge>
         </Card>
       ))}

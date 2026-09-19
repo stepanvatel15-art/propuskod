@@ -1,6 +1,7 @@
 import type { PassWithEvents } from '@/lib/history/get-student-history'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { formatDateTime } from '@/lib/format/datetime'
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Ожидает подтверждения',
@@ -27,12 +28,7 @@ const EVENT_LABELS: Record<string, string> = {
 }
 
 function fmt(dt: string) {
-  return new Date(dt).toLocaleString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  return formatDateTime(dt)
 }
 
 export default function EventTimeline({ pass }: { pass: PassWithEvents }) {
