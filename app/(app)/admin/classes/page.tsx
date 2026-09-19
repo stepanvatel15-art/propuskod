@@ -2,6 +2,14 @@ import { createClient } from '@/lib/supabase/server'
 import CreateClassForm from './create-class-form'
 import ClassesTable from './classes-table'
 
+type KlassRow = {
+  id: string
+  name: string
+  homeroom_teacher_id: string | null
+  building_id: string | null
+  profiles: { full_name: string } | null
+}
+
 export default async function AdminClassesPage() {
   const supabase = await createClient()
 
@@ -33,7 +41,11 @@ export default async function AdminClassesPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--color-ink)]">Все классы</h2>
-        <ClassesTable classes={classes ?? []} teachers={teachers ?? []} buildings={buildings ?? []} />
+        <ClassesTable
+          classes={(classes ?? []) as unknown as KlassRow[]}
+          teachers={teachers ?? []}
+          buildings={buildings ?? []}
+        />
       </section>
     </div>
   )

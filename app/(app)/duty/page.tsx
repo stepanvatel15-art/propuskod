@@ -3,6 +3,15 @@ import BuildingSwitcher from './building-switcher'
 import DutyQueue from './duty-queue'
 import ReleaseChildForm from './release-child-form'
 
+type DutyPassRow = {
+  id: string
+  requested_departure_at: string
+  reason: string | null
+  students: { full_name: string } | null
+  classes: { name: string } | null
+  creator: { role: string } | null
+}
+
 export default async function DutyPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -75,7 +84,7 @@ export default async function DutyPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--color-ink)]">Заявки на выход</h2>
-        <DutyQueue passes={passes ?? []} buildingId={activeBuildingId} />
+        <DutyQueue passes={(passes ?? []) as unknown as DutyPassRow[]} buildingId={activeBuildingId} />
       </section>
     </div>
   )

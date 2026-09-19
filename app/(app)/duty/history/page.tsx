@@ -5,6 +5,16 @@ import { Badge } from '@/components/ui/badge'
 
 type DateRange = 'today' | '7d' | '30d' | 'all'
 
+type HistoryRow = {
+  id: string
+  requested_departure_at: string
+  used_at: string | null
+  reason: string | null
+  students: { full_name: string } | null
+  classes: { name: string } | null
+  creator: { role: string } | null
+}
+
 function rangeStart(range: DateRange): string | null {
   const now = new Date()
   if (range === 'today') { now.setHours(0, 0, 0, 0); return now.toISOString() }
@@ -56,7 +66,8 @@ export default async function DutyHistoryPage({
   const since = rangeStart(range)
   if (since) query = query.gte('used_at', since)
 
-  const { data: passes } = await query
+  const { data } = await query
+  const passes = (data ?? []) as unknown as HistoryRow[]
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -64,13 +75,13 @@ export default async function DutyHistoryPage({
 
       <DateFilter current={range} />
 
-      {(passes ?? []).length === 0 ? (
+      {passes.length === 0 ? (
         <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
           Нет записей за выбранный период
         </p>
       ) : (
         <div className="space-y-2">
-          {(passes ?? []).map((p) => {
+          {passes.map((p) => {
             const isDutyIssued = p.creator?.role === 'security' || p.creator?.role === 'admin'
             return (
               <Card key={p.id} className="flex items-center justify-between p-4">

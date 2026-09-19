@@ -3,6 +3,9 @@ import PassForm from './pass-form'
 import ActiveList from './active-list'
 import ExitedToday from './exited-today'
 
+type PassRow = { id: string; requested_departure_at: string; students: { full_name: string } | null }
+type ExitedRow = { id: string; used_at: string | null; students: { full_name: string } | null }
+
 export default async function TeacherPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -60,12 +63,12 @@ export default async function TeacherPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--color-ink)]">Активные пропуска</h2>
-        <ActiveList passes={active ?? []} classId={klass.id} />
+        <ActiveList passes={(active ?? []) as unknown as PassRow[]} classId={klass.id} />
       </section>
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--color-ink)]">Вышли сегодня</h2>
-        <ExitedToday passes={exitedToday ?? []} />
+        <ExitedToday passes={(exitedToday ?? []) as unknown as ExitedRow[]} />
       </section>
     </div>
   )
