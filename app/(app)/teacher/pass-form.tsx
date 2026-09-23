@@ -24,11 +24,11 @@ export default function PassForm({ students }: { students: Student[] }) {
     const iso = new Date(time).toISOString()
 
     startTransition(async () => {
-      try {
-        await createPassAction({ studentId, requestedDepartureAt: iso, reason })
+      const res = await createPassAction({ studentId, requestedDepartureAt: iso, reason })
+      if ('error' in res) {
+        setError(res.error)
+      } else {
         setStudentId(''); setTime(''); setReason('')
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Ошибка')
       }
     })
   }

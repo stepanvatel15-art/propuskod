@@ -6,11 +6,12 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { loginToEmail } from '@/lib/auth/login-mapping'
 
 type Role = 'teacher' | 'security' | 'admin'
+type ActionResult = { ok: true } | { error: string }
 
 async function assertCallerIsAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
+  if (!user) return { error: 'Не авторизован' } as const
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -18,8 +19,8 @@ async function assertCallerIsAdmin() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'admin') throw new Error('Недостаточно прав')
-  return { supabase, adminId: user.id }
+  if (profile?.role !== 'admin') return { error: 'Недостаточно прав' } as const
+  return { ok: true as const, supabase, adminId: user.id }
 }
 
 export async function createUserAction(input: {
@@ -27,8 +28,10 @@ export async function createUserAction(input: {
   password: string
   fullName: string
   role: Role
-}) {
-  await assertCallerIsAdmin()
+}): Promise<ActionResult> {
+  const auth = await assertCallerIsAdmin()
+  if ('error' in auth) return auth
+
   const admin = createAdminClient()
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
@@ -37,7 +40,7 @@ export async function createUserAction(input: {
     email_confirm: true,
   })
   if (createError || !created.user) {
-    throw new Error(createError?.message ?? 'Не удалось создать пользователя')
+    return { error: createError?.message ?? 'Не удалось создать пользователя' }
   }
 
   const { error: profileError } = await admin.from('profiles').insert({
@@ -48,33 +51,40 @@ export async function createUserAction(input: {
   })
   if (profileError) {
     await admin.auth.admin.deleteUser(created.user.id)
-    throw new Error(profileError.message)
+    return { error: profileError.message }
   }
 
   revalidatePath('/admin/users')
+  return { ok: true }
 }
 
-export async function updateUserRoleAction(userId: string, role: Role) {
-  const { supabase } = await assertCallerIsAdmin()
-  const { error } = await supabase.from('profiles').update({ role }).eq('id', userId)
-  if (error) throw new Error(error.message)
+export async function updateUserRoleAction(userId: string, role: Role): Promise<ActionResult> {
+  const auth = await assertCallerIsAdmin()
+  if ('error' in auth) return auth
+
+  const { error } = await auth.supabase.from('profiles').update({ role }).eq('id', userId)
+  if (error) return { error: error.message }
   revalidatePath('/admin/users')
+  return { ok: true }
 }
 
-export async function setUserActiveAction(userId: string, isActive: boolean) {
-  await assertCallerIsAdmin()
+export async function setUserActiveAction(userId: string, isActive: boolean): Promise<ActionResult> {
+  const auth = await assertCallerIsAdmin()
+  if ('error' in auth) return auth
+
   const admin = createAdminClient()
 
   const { error: authError } = await admin.auth.admin.updateUserById(userId, {
     ban_duration: isActive ? 'none' : '87600h',
   })
-  if (authError) throw new Error(authError.message)
+  if (authError) return { error: authError.message }
 
   const { error: profileError } = await admin
     .from('profiles')
     .update({ is_active: isActive })
     .eq('id', userId)
-  if (profileError) throw new Error(profileError.message)
+  if (profileError) return { error: profileError.message }
 
   revalidatePath('/admin/users')
+  return { ok: true }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cancelPassAction } from './actions'
@@ -18,6 +18,7 @@ type ActivePass = {
 export default function ActiveList({ passes, classId }: { passes: ActivePass[]; classId: string }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -33,6 +34,14 @@ export default function ActiveList({ passes, classId }: { passes: ActivePass[]; 
     return () => { supabase.removeChannel(channel) }
   }, [classId, router])
 
+  function handleCancel(passId: string) {
+    setError(null)
+    startTransition(async () => {
+      const res = await cancelPassAction(passId)
+      if ('error' in res) setError(res.error)
+    })
+  }
+
   if (passes.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
@@ -43,6 +52,11 @@ export default function ActiveList({ passes, classId }: { passes: ActivePass[]; 
 
   return (
     <div className="space-y-2">
+      {error && (
+        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+          {error}
+        </p>
+      )}
       {passes.map((p) => (
         <Card key={p.id} className="flex items-center justify-between p-4">
           <div>
@@ -57,7 +71,7 @@ export default function ActiveList({ passes, classId }: { passes: ActivePass[]; 
               size="sm"
               variant="ghost"
               disabled={isPending}
-              onClick={() => startTransition(() => cancelPassAction(p.id))}
+              onClick={() => handleCancel(p.id)}
             >
               Отменить
             </Button>

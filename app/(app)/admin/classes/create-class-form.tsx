@@ -21,12 +21,12 @@ export default function CreateClassForm() {
         disabled={isPending}
         onClick={() =>
           startTransition(async () => {
-            try {
-              await createClassAction(name)
+            const res = await createClassAction(name)
+            if ('error' in res) {
+              setError(res.error)
+            } else {
               setName('')
               setError(null)
-            } catch (e) {
-              setError(e instanceof Error ? e.message : 'Ошибка')
             }
           })
         }

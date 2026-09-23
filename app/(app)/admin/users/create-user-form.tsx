@@ -25,11 +25,11 @@ export default function CreateUserForm() {
     }
     setError(null)
     startTransition(async () => {
-      try {
-        await createUserAction({ login, password, fullName, role })
+      const res = await createUserAction({ login, password, fullName, role })
+      if ('error' in res) {
+        setError(res.error)
+      } else {
         setLogin(''); setPassword(''); setFullName('')
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Ошибка')
       }
     })
   }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { markPassUsedAction, cancelPassAction } from './actions'
@@ -21,6 +21,7 @@ type DutyPass = {
 export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; buildingId: string }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -40,6 +41,22 @@ export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; 
     return () => { supabase.removeChannel(channel) }
   }, [buildingId, router])
 
+  function handleMarkUsed(passId: string) {
+    setError(null)
+    startTransition(async () => {
+      const res = await markPassUsedAction(passId)
+      if ('error' in res) setError(res.error)
+    })
+  }
+
+  function handleCancel(passId: string) {
+    setError(null)
+    startTransition(async () => {
+      const res = await cancelPassAction(passId)
+      if ('error' in res) setError(res.error)
+    })
+  }
+
   if (passes.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
@@ -50,6 +67,11 @@ export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; 
 
   return (
     <div className="space-y-2">
+      {error && (
+        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+          {error}
+        </p>
+      )}
       {passes.map((p) => {
         const isDutyIssued = p.creator?.role === 'security' || p.creator?.role === 'admin'
         return (
@@ -70,13 +92,13 @@ export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; 
                 variant="ghost"
                 size="sm"
                 disabled={isPending}
-                onClick={() => startTransition(() => cancelPassAction(p.id))}
+                onClick={() => handleCancel(p.id)}
               >
                 Отменить
               </Button>
               <Button
                 disabled={isPending}
-                onClick={() => startTransition(() => markPassUsedAction(p.id))}
+                onClick={() => handleMarkUsed(p.id)}
               >
                 Ребёнок вышел
               </Button>

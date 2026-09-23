@@ -24,29 +24,42 @@ export default function ClassesTable({
   buildings: Building[]
 }) {
   const [isPending, startTransition] = useTransition()
-  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  function handleTeacherChange(classId: string, teacherId: string | null) {
+    setError(null)
+    startTransition(async () => {
+      const res = await assignTeacherAction(classId, teacherId)
+      if ('error' in res) setError(res.error)
+    })
+  }
+
+  function handleBuildingChange(classId: string, buildingId: string | null) {
+    setError(null)
+    startTransition(async () => {
+      const res = await assignBuildingAction(classId, buildingId)
+      if ('error' in res) setError(res.error)
+    })
+  }
 
   function handleDelete(classId: string, className: string) {
-    setDeleteError(null)
+    setError(null)
     const confirmed = window.confirm(
       `Удалить класс «${className}»? Это удалит и всех его учеников. Действие необратимо.`
     )
     if (!confirmed) return
 
     startTransition(async () => {
-      try {
-        await deleteClassAction(classId)
-      } catch (e) {
-        setDeleteError(e instanceof Error ? e.message : 'Не удалось удалить класс')
-      }
+      const res = await deleteClassAction(classId)
+      if ('error' in res) setError(res.error)
     })
   }
 
   return (
     <div className="space-y-3">
-      {deleteError && (
+      {error && (
         <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
-          {deleteError}
+          {error}
         </p>
       )}
       <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
@@ -62,9 +75,7 @@ export default function ClassesTable({
             <select
               defaultValue={c.homeroom_teacher_id ?? ''}
               disabled={isPending}
-              onChange={(e) =>
-                startTransition(() => assignTeacherAction(c.id, e.target.value || null))
-              }
+              onChange={(e) => handleTeacherChange(c.id, e.target.value || null)}
               className="h-9 rounded-lg border border-[var(--color-border)] bg-white px-2 text-sm"
             >
               <option value="">— не назначен —</option>
@@ -75,9 +86,7 @@ export default function ClassesTable({
             <select
               defaultValue={c.building_id ?? ''}
               disabled={isPending}
-              onChange={(e) =>
-                startTransition(() => assignBuildingAction(c.id, e.target.value || null))
-              }
+              onChange={(e) => handleBuildingChange(c.id, e.target.value || null)}
               className="h-9 rounded-lg border border-[var(--color-border)] bg-white px-2 text-sm"
             >
               <option value="">— не назначен —</option>

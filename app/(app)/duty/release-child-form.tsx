@@ -49,12 +49,12 @@ export default function ReleaseChildForm({
     }
     setError(null)
     startTransition(async () => {
-      try {
-        await createDutyReleaseAction({ studentId, reason })
+      const res = await createDutyReleaseAction({ studentId, reason })
+      if ('error' in res) {
+        setError(res.error)
+      } else {
         setClassId(''); setStudentId(''); setReason(''); setOpen(false)
         router.refresh()
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Ошибка')
       }
     })
   }

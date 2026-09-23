@@ -27,11 +27,11 @@ export default function ImportStudentsForm({ classId }: { classId: string }) {
             setError(null)
             setSummary(null)
             startTransition(async () => {
-              try {
-                const res = await importStudentsAction(formData)
+              const res = await importStudentsAction(formData)
+              if ('error' in res) {
+                setError(res.error)
+              } else {
                 setSummary(res)
-              } catch (e) {
-                setError(e instanceof Error ? e.message : 'Ошибка загрузки')
               }
             })
           }}

@@ -21,12 +21,12 @@ export default function CreateBuildingForm() {
         disabled={isPending}
         onClick={() =>
           startTransition(async () => {
-            try {
-              await createBuildingAction(name)
+            const res = await createBuildingAction(name)
+            if ('error' in res) {
+              setError(res.error)
+            } else {
               setName('')
               setError(null)
-            } catch (e) {
-              setError(e instanceof Error ? e.message : 'Ошибка')
             }
           })
         }

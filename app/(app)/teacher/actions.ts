@@ -9,6 +9,8 @@ type CreatePassInput = {
   reason?: string
 }
 
+type ActionResult = { ok: true } | { error: string }
+
 async function getStudentClassInfo(
   supabase: Awaited<ReturnType<typeof createClient>>,
   studentId: string
@@ -19,29 +21,33 @@ async function getStudentClassInfo(
     .eq('id', studentId)
     .single()
 
-  if (error || !data) throw new Error('Ученик не найден или нет доступа')
+  if (error || !data) return null
   const classes = data.classes as unknown as { building_id: string | null } | null
   return { classId: data.class_id, buildingId: classes?.building_id ?? null }
 }
 
 /** Учитель сам решает и сам фиксирует время выхода — отдельного этапа
  *  подтверждения больше нет: у детей может не быть телефона, чтобы
- *  подавать заявку самим, поэтому учитель всегда действует за них. */
-export async function createPassAction(input: CreatePassInput) {
+ *  подавать заявку самим, поэтому учитель всегда действует за них.
+ *
+ *  Возвращаем { error } вместо throw — Next.js в продакшене скрывает текст
+ *  ошибок, выброшенных из Server Action, за нечитаемым кодом. */
+export async function createPassAction(input: CreatePassInput): Promise<ActionResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
+  if (!user) return { error: 'Не авторизован' }
 
   if (!input.requestedDepartureAt) {
-    throw new Error('Укажите время выхода')
+    return { error: 'Укажите время выхода' }
   }
 
-  const { classId, buildingId } = await getStudentClassInfo(supabase, input.studentId)
+  const info = await getStudentClassInfo(supabase, input.studentId)
+  if (!info) return { error: 'Ученик не найден или нет доступа' }
 
   const { error } = await supabase.from('passes').insert({
     student_id: input.studentId,
-    class_id: classId,
-    building_id: buildingId,
+    class_id: info.classId,
+    building_id: info.buildingId,
     type: 'direct',
     status: 'approved',
     requested_departure_at: input.requestedDepartureAt,
@@ -51,18 +57,19 @@ export async function createPassAction(input: CreatePassInput) {
     approved_at: new Date().toISOString(),
   })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/teacher')
+  return { ok: true }
 }
 
 /** Отмена ошибочного пропуска — учитель может исправить свою же опечатку
  *  (не тот ученик, не то время) до того, как дежурный его обработает.
  *  Это "мягкое" удаление: статус меняется на cancelled, запись остаётся
  *  в истории, а не пропадает бесследно. */
-export async function cancelPassAction(passId: string) {
+export async function cancelPassAction(passId: string): Promise<ActionResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
+  if (!user) return { error: 'Не авторизован' }
 
   const { error } = await supabase
     .from('passes')
@@ -70,6 +77,7 @@ export async function cancelPassAction(passId: string) {
     .eq('id', passId)
     .eq('status', 'approved')
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/teacher')
+  return { ok: true }
 }

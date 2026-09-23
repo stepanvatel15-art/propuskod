@@ -15,20 +15,22 @@ export type ImportSummary = {
 /** Общая логика загрузки списка класса — используется и учителем (для своего
  *  класса), и главным администратором (для любого класса школы). Доступ
  *  к конкретному classId в обоих случаях проверяет RLS на students/classes. */
-export async function importStudentsAction(formData: FormData): Promise<ImportSummary> {
+export async function importStudentsAction(
+  formData: FormData
+): Promise<ImportSummary | { error: string }> {
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) throw new Error('Не авторизован')
+  if (!user) return { error: 'Не авторизован' }
 
   const classId = String(formData.get('classId') ?? '')
   const file = formData.get('file') as File | null
 
-  if (!classId) throw new Error('Не указан класс')
-  if (!file || file.size === 0) throw new Error('Файл не выбран')
-  if (file.size > 2 * 1024 * 1024) throw new Error('Файл слишком большой (макс. 2 МБ)')
+  if (!classId) return { error: 'Не указан класс' }
+  if (!file || file.size === 0) return { error: 'Файл не выбран' }
+  if (file.size > 2 * 1024 * 1024) return { error: 'Файл слишком большой (макс. 2 МБ)' }
 
   const { data: klass, error: classError } = await supabase
     .from('classes')
@@ -36,7 +38,7 @@ export async function importStudentsAction(formData: FormData): Promise<ImportSu
     .eq('id', classId)
     .single()
 
-  if (classError || !klass) throw new Error('Класс не найден или нет доступа')
+  if (classError || !klass) return { error: 'Класс не найден или нет доступа' }
 
   const buffer = await file.arrayBuffer()
   const { rows, errors: parseErrors } = parseStudentsExcel(buffer)
