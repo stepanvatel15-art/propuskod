@@ -24,7 +24,7 @@ export type PassWithEvents = {
 }
 
 export type StudentHistory = {
-  student: { id: string; full_name: string; birth_date: string; class_id: string } | null
+  student: { id: string; full_name: string; birth_date: string | null; class_id: string } | null
   passes: PassWithEvents[]
 }
 

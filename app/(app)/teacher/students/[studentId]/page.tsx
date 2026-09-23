@@ -36,9 +36,11 @@ export default async function StudentHistoryPage({
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-lg font-semibold text-[var(--color-ink)]">{student.full_name}</h1>
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          Дата рождения: {formatDate(student.birth_date)}
-        </p>
+        {student.birth_date && (
+          <p className="text-sm text-[var(--color-ink-muted)]">
+            Дата рождения: {formatDate(student.birth_date)}
+          </p>
+        )}
       </div>
 
       <HistoryFilters currentRange={range} currentStatus={status} />

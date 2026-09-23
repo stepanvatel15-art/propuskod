@@ -50,3 +50,23 @@ export async function assignBuildingAction(classId: string, buildingId: string |
   if (error) throw new Error(error.message)
   revalidatePath('/admin/classes')
 }
+
+/** Удаление класса. Каскадно удалит его учеников (и их пропуска — история
+ *  тоже уйдёт вместе с ними). Если у класса уже есть история пропусков,
+ *  прямое удаление заблокировано на уровне базы — даём понятную причину
+ *  вместо сырой ошибки Postgres. */
+export async function deleteClassAction(classId: string) {
+  const supabase = await assertCallerIsAdmin()
+
+  const { error } = await supabase.from('classes').delete().eq('id', classId)
+
+  if (error) {
+    if (error.code === '23503') {
+      throw new Error(
+        'Нельзя удалить класс: у него есть история пропусков. Сначала уберите пропуска этого класса, либо оставьте класс архивным.'
+      )
+    }
+    throw new Error(error.message)
+  }
+  revalidatePath('/admin/classes')
+}

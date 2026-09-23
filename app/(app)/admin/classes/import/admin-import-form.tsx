@@ -5,24 +5,37 @@ import { importStudentsAction, type ImportSummary } from '@/lib/import/import-st
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-export default function ImportStudentsForm({ classId }: { classId: string }) {
+type ClassOption = { id: string; name: string }
+
+export default function AdminImportForm({ classes }: { classes: ClassOption[] }) {
+  const [classId, setClassId] = useState('')
   const [summary, setSummary] = useState<ImportSummary | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div>
-        <h1 className="text-lg font-semibold text-[var(--color-ink)]">Загрузка списка класса</h1>
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          Файл .xlsx с колонкой «ФИО» в первой строке. Колонка «Дата рождения»
-          необязательна — можно оставить пустой или не добавлять вовсе.
-        </p>
-      </div>
-
+    <div className="space-y-6">
       <Card className="space-y-4 p-5">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Класс</label>
+          <select
+            value={classId}
+            onChange={(e) => setClassId(e.target.value)}
+            className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+          >
+            <option value="">— выберите класс —</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
         <form
           action={(formData) => {
+            if (!classId) {
+              setError('Сначала выберите класс')
+              return
+            }
             formData.set('classId', classId)
             setError(null)
             setSummary(null)
@@ -42,9 +55,10 @@ export default function ImportStudentsForm({ classId }: { classId: string }) {
             name="file"
             accept=".xlsx,.xls"
             required
-            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)]"
+            disabled={!classId}
+            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)] disabled:opacity-50"
           />
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending || !classId}>
             {isPending ? 'Загружаем…' : 'Загрузить'}
           </Button>
         </form>

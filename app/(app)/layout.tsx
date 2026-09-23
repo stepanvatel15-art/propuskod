@@ -15,6 +15,7 @@ const NAV: Record<string, { href: string; label: string }[]> = {
   admin: [
     { href: '/admin/users', label: 'Пользователи' },
     { href: '/admin/classes', label: 'Классы' },
+    { href: '/admin/classes/import', label: 'Загрузить список класса' },
     { href: '/admin/buildings', label: 'Корпуса' },
   ],
 }

@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx'
 export type ParsedStudentRow = {
   rowNumber: number       // номер строки в файле (для отчёта об ошибках)
   fullName: string
-  birthDate: string       // ISO 'YYYY-MM-DD'
+  birthDate: string | null // ISO 'YYYY-MM-DD' или null — дата не обязательна
 }
 
 export type ParseRowError = {
@@ -31,6 +31,8 @@ function findColumnIndex(headerRow: unknown[], aliases: string[]): number {
   return headerRow.findIndex((cell) => aliases.includes(normalizeHeader(cell)))
 }
 
+/** Возвращает распознанную дату, либо null — и для "ячейка пустая",
+ *  и для "формат не распознан" (оба случая не ошибка, раз дата необязательна). */
 function parseBirthDate(raw: unknown): string | null {
   if (raw == null || raw === '') return null
 
@@ -43,6 +45,7 @@ function parseBirthDate(raw: unknown): string | null {
   }
 
   const str = String(raw).trim()
+  if (!str) return null
 
   let m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (m) return `${m[1]}-${m[2]}-${m[3]}`
@@ -56,8 +59,21 @@ function parseBirthDate(raw: unknown): string | null {
   return null
 }
 
+function isPlausibleBirthYear(iso: string): boolean {
+  const year = Number(iso.slice(0, 4))
+  const currentYear = new Date().getFullYear()
+  return year >= currentYear - 20 && year <= currentYear - 5
+}
+
 function isPlausibleFullName(name: string): boolean {
   return /^[А-ЯЁа-яёA-Za-z\-\s]{4,100}$/.test(name) && name.trim().split(/\s+/).length >= 2
+}
+
+/** Ключ дедупликации: если дата рождения известна — учитываем её (точнее),
+ *  если нет — дедуплицируем просто по ФИО внутри класса. */
+export function studentDedupeKey(fullName: string, birthDate: string | null): string {
+  const name = fullName.trim().toLowerCase()
+  return birthDate ? `${name}|${birthDate}` : name
 }
 
 export function parseStudentsExcel(buffer: ArrayBuffer): ParseResult {
@@ -76,17 +92,16 @@ export function parseStudentsExcel(buffer: ArrayBuffer): ParseResult {
 
   const headerRow = data[0]
   const nameCol = findColumnIndex(headerRow, HEADER_ALIASES.fullName)
-  const dateCol = findColumnIndex(headerRow, HEADER_ALIASES.birthDate)
+  const dateCol = findColumnIndex(headerRow, HEADER_ALIASES.birthDate) // может не найтись — это нормально
 
-  if (nameCol === -1 || dateCol === -1) {
+  if (nameCol === -1) {
     return {
       rows: [],
       errors: [
         {
           rowNumber: 1,
           raw: headerRow,
-          reason:
-            'Не найдены колонки "ФИО" и "Дата рождения" в заголовке. Проверьте первую строку файла.',
+          reason: 'Не найдена колонка "ФИО" в заголовке. Проверьте первую строку файла.',
         },
       ],
     }
@@ -101,8 +116,6 @@ export function parseStudentsExcel(buffer: ArrayBuffer): ParseResult {
     const raw = data[i]
 
     const fullNameRaw = raw[nameCol]
-    const birthDateRaw = raw[dateCol]
-
     const fullName = String(fullNameRaw ?? '').trim().replace(/\s+/g, ' ')
 
     if (!fullName) {
@@ -114,28 +127,34 @@ export function parseStudentsExcel(buffer: ArrayBuffer): ParseResult {
       continue
     }
 
-    const birthDate = parseBirthDate(birthDateRaw)
-    if (!birthDate) {
-      errors.push({
-        rowNumber,
-        raw,
-        reason: `Не удалось распознать дату рождения: "${String(birthDateRaw)}"`,
-      })
-      continue
+    let birthDate: string | null = null
+    if (dateCol !== -1) {
+      const birthDateRaw = raw[dateCol]
+      const hasValue = birthDateRaw != null && String(birthDateRaw).trim() !== ''
+      if (hasValue) {
+        const parsed = parseBirthDate(birthDateRaw)
+        if (!parsed) {
+          errors.push({
+            rowNumber,
+            raw,
+            reason: `Не удалось распознать дату рождения: "${String(birthDateRaw)}" (оставьте ячейку пустой, если дату не указываете)`,
+          })
+          continue
+        }
+        if (!isPlausibleBirthYear(parsed)) {
+          errors.push({
+            rowNumber,
+            raw,
+            reason: `Дата рождения выглядит неправдоподобно для школьника: ${parsed}`,
+          })
+          continue
+        }
+        birthDate = parsed
+      }
+      // пустая ячейка при существующей колонке — не ошибка, birthDate остаётся null
     }
 
-    const birthYear = Number(birthDate.slice(0, 4))
-    const currentYear = new Date().getFullYear()
-    if (birthYear < currentYear - 20 || birthYear > currentYear - 5) {
-      errors.push({
-        rowNumber,
-        raw,
-        reason: `Дата рождения выглядит неправдоподобно для школьника: ${birthDate}`,
-      })
-      continue
-    }
-
-    const dedupeKey = `${fullName.toLowerCase()}|${birthDate}`
+    const dedupeKey = studentDedupeKey(fullName, birthDate)
     if (seenInFile.has(dedupeKey)) {
       errors.push({ rowNumber, raw, reason: 'Дубликат строки внутри файла' })
       continue
