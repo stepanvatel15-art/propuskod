@@ -7,10 +7,14 @@ const NAV: Record<string, { href: string; label: string }[]> = {
   teacher: [
     { href: '/teacher', label: 'Мой класс' },
     { href: '/teacher/students/import', label: 'Загрузить список класса' },
+    { href: '/teacher/late-stats', label: 'Опоздания класса' },
+    { href: '/teacher/no-card-stats', label: 'Без карты — класс' },
   ],
   security: [
     { href: '/duty', label: 'Дежурство' },
     { href: '/duty/history', label: 'История выходов' },
+    { href: '/duty/late', label: 'Опоздания' },
+    { href: '/duty/no-card', label: 'Без карты' },
   ],
   admin: [
     { href: '/admin/users', label: 'Пользователи' },
