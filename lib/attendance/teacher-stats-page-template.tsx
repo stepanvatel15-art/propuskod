@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/auth/session'
 import { getAttendanceStats } from './get-attendance-stats'
 import DateRangeFilter from './date-range-filter'
 import StatsTable from './stats-table'
@@ -33,8 +33,7 @@ export async function AttendanceTeacherStatsPage({
   const range = sp.range ?? 'month'
   const { since, until } = rangeBounds(range, sp.from, sp.to)
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getSession()
 
   const { data: klass } = await supabase
     .from('classes')

@@ -13,22 +13,22 @@ type KlassRow = {
 export default async function AdminClassesPage() {
   const supabase = await createClient()
 
-  const { data: classes } = await supabase
-    .from('classes')
-    .select('id, name, homeroom_teacher_id, building_id, profiles(full_name)')
-    .order('name')
-
-  const { data: teachers } = await supabase
-    .from('profiles')
-    .select('id, full_name')
-    .eq('role', 'teacher')
-    .eq('is_active', true)
-    .order('full_name')
-
-  const { data: buildings } = await supabase
-    .from('buildings')
-    .select('id, name')
-    .order('name')
+  const [{ data: classes }, { data: teachers }, { data: buildings }] = await Promise.all([
+    supabase
+      .from('classes')
+      .select('id, name, homeroom_teacher_id, building_id, profiles(full_name)')
+      .order('name'),
+    supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('role', 'teacher')
+      .eq('is_active', true)
+      .order('full_name'),
+    supabase
+      .from('buildings')
+      .select('id, name')
+      .order('name'),
+  ])
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">

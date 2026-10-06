@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/auth/session'
 import DateFilter from './date-filter'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -33,14 +33,7 @@ export default async function DutyHistoryPage({
     ? (sp.range as DateRange)
     : 'today'
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('active_building_id')
-    .eq('id', user!.id)
-    .single()
+  const { supabase, profile } = await getSession()
 
   const activeBuildingId = profile?.active_building_id ?? null
 

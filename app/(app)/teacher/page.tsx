@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/auth/session'
 import PassForm from './pass-form'
 import ActiveList from './active-list'
 import ExitedToday from './exited-today'
@@ -8,8 +8,7 @@ type PassRow = { id: string; requested_departure_at: string; students: { full_na
 type ExitedRow = { id: string; used_at: string | null; students: { full_name: string } | null }
 
 export default async function TeacherPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getSession()
 
   const { data: klass } = await supabase
     .from('classes')
@@ -25,27 +24,28 @@ export default async function TeacherPage() {
     )
   }
 
-  const { data: students } = await supabase
-    .from('students')
-    .select('id, full_name')
-    .eq('class_id', klass.id)
-    .eq('is_active', true)
-    .order('full_name')
-
-  const { data: active } = await supabase
-    .from('passes')
-    .select('id, requested_departure_at, students(full_name)')
-    .eq('class_id', klass.id)
-    .eq('status', 'approved')
-    .order('requested_departure_at')
-
-  const { data: exitedToday } = await supabase
-    .from('passes')
-    .select('id, used_at, students(full_name)')
-    .eq('class_id', klass.id)
-    .eq('status', 'used')
-    .gte('used_at', moscowTodayStartISO())
-    .order('used_at', { ascending: false })
+  // Три независимых запроса — отправляем одновременно, а не по очереди
+  const [{ data: students }, { data: active }, { data: exitedToday }] = await Promise.all([
+    supabase
+      .from('students')
+      .select('id, full_name')
+      .eq('class_id', klass.id)
+      .eq('is_active', true)
+      .order('full_name'),
+    supabase
+      .from('passes')
+      .select('id, requested_departure_at, students(full_name)')
+      .eq('class_id', klass.id)
+      .eq('status', 'approved')
+      .order('requested_departure_at'),
+    supabase
+      .from('passes')
+      .select('id, used_at, students(full_name)')
+      .eq('class_id', klass.id)
+      .eq('status', 'used')
+      .gte('used_at', moscowTodayStartISO())
+      .order('used_at', { ascending: false }),
+  ])
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">

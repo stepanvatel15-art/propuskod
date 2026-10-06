@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth/session'
+import NavLinks from './nav-links'
 import { logoutAction } from '@/app/login/actions'
 import { Logo } from '@/components/ui/logo'
 
@@ -35,20 +36,9 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user, profile } = await getSession()
 
-  if (!user) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) redirect('/login')
+  if (!user || !profile) redirect('/login')
 
   const links = NAV[profile.role] ?? []
 
@@ -63,17 +53,7 @@ export default async function AppLayout({
             </span>
           </div>
 
-          <nav className="space-y-1">
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="block rounded-lg px-3 py-2 text-sm text-white/85 hover:bg-white/10 hover:text-white"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
+          <NavLinks links={links} />
         </div>
 
         <div className="space-y-3 border-t border-white/10 pt-4 px-2">

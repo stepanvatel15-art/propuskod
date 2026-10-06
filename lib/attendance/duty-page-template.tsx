@@ -1,18 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/auth/session'
 import SearchAndMark from './search-and-mark'
 import TodayList from './today-list'
 import { moscowTodayStartISO } from '@/lib/format/datetime'
 import type { AttendanceKind } from './attendance-actions'
 
 export async function AttendanceDutyPage({ kind, title }: { kind: AttendanceKind; title: string }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('active_building_id')
-    .eq('id', user!.id)
-    .single()
+  const { supabase, profile } = await getSession()
 
   const activeBuildingId = profile?.active_building_id ?? null
 
@@ -24,10 +17,20 @@ export async function AttendanceDutyPage({ kind, title }: { kind: AttendanceKind
     )
   }
 
-  const { data: classesInBuilding } = await supabase
-    .from('classes')
-    .select('id, name')
-    .eq('building_id', activeBuildingId)
+  // Классы корпуса и сегодняшние отметки не зависят друг от друга — грузим параллельно
+  const [{ data: classesInBuilding }, { data: todayMarks }] = await Promise.all([
+    supabase
+      .from('classes')
+      .select('id, name')
+      .eq('building_id', activeBuildingId),
+    supabase
+      .from('attendance_marks')
+      .select('id, created_at, students(full_name), classes(name)')
+      .eq('building_id', activeBuildingId)
+      .eq('kind', kind)
+      .gte('created_at', moscowTodayStartISO())
+      .order('created_at', { ascending: false }),
+  ])
 
   const classIds = (classesInBuilding ?? []).map((c) => c.id)
   const classNameById = new Map((classesInBuilding ?? []).map((c) => [c.id, c.name]))
@@ -46,14 +49,6 @@ export async function AttendanceDutyPage({ kind, title }: { kind: AttendanceKind
     full_name: s.full_name,
     class_name: classNameById.get(s.class_id) ?? '',
   }))
-
-  const { data: todayMarks } = await supabase
-    .from('attendance_marks')
-    .select('id, created_at, students(full_name), classes(name)')
-    .eq('building_id', activeBuildingId)
-    .eq('kind', kind)
-    .gte('created_at', moscowTodayStartISO())
-    .order('created_at', { ascending: false })
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">

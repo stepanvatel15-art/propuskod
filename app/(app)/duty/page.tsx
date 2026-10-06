@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/auth/session'
 import BuildingSwitcher from './building-switcher'
 import DutyQueue from './duty-queue'
 import ReleaseChildForm from './release-child-form'
@@ -13,14 +13,7 @@ type DutyPassRow = {
 }
 
 export default async function DutyPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('active_building_id')
-    .eq('id', user!.id)
-    .single()
+  const { supabase, profile } = await getSession()
 
   const { data: buildings } = await supabase
     .from('buildings')
@@ -42,22 +35,24 @@ export default async function DutyPage() {
     )
   }
 
-  const { data: passes } = await supabase
-    .from('passes')
-    .select(
-      `id, requested_departure_at, reason,
-       students(full_name), classes(name),
-       creator:profiles!passes_created_by_fkey(role)`
-    )
-    .eq('building_id', activeBuildingId)
-    .eq('status', 'approved')
-    .order('requested_departure_at')
-
-  const { data: classesInBuilding } = await supabase
-    .from('classes')
-    .select('id, name')
-    .eq('building_id', activeBuildingId)
-    .order('name')
+  // Заявки и классы корпуса не зависят друг от друга — грузим параллельно
+  const [{ data: passes }, { data: classesInBuilding }] = await Promise.all([
+    supabase
+      .from('passes')
+      .select(
+        `id, requested_departure_at, reason,
+         students(full_name), classes(name),
+         creator:profiles!passes_created_by_fkey(role)`
+      )
+      .eq('building_id', activeBuildingId)
+      .eq('status', 'approved')
+      .order('requested_departure_at'),
+    supabase
+      .from('classes')
+      .select('id, name')
+      .eq('building_id', activeBuildingId)
+      .order('name'),
+  ])
 
   const classIds = (classesInBuilding ?? []).map((c) => c.id)
 

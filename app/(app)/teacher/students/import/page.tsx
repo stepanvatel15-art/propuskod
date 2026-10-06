@@ -1,9 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/auth/session'
 import ImportStudentsForm from './import-form'
 
 export default async function ImportStudentsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getSession()
 
   const { data: klass } = await supabase
     .from('classes')
