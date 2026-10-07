@@ -67,7 +67,10 @@ ok "Новая база:  $(q "$NEW_DB" "select current_setting('server_version'
 
 new_tables=$(q "$NEW_DB" "select count(*) from pg_tables where schemaname='public'")
 new_users=$(q "$NEW_DB" "select count(*) from auth.users")
-[ "$new_tables" = "0" ] && [ "$new_users" = "0" ] || fail "Новая база не пустая (таблиц: $new_tables, пользователей: $new_users). Нужен чистый проект."
+# Пользователи в новой базе = там уже реальные данные, трогать нельзя.
+[ "$new_users" = "0" ] || fail "В новой базе уже есть пользователи ($new_users). Нужен чистый проект."
+# Таблицы без пользователей = остатки прерванной попытки — их можно убрать.
+[ "$new_tables" = "0" ] || ok "В новой базе остались таблицы от прошлой попытки ($new_tables) — уберу их перед загрузкой"
 
 if [ "${1:-}" = "--check" ]; then
   say "Проверка пройдена — подключения работают, новая база пустая. Переезд можно запускать без --check."
@@ -85,7 +88,8 @@ NEW_HOST=$(echo "$NEW_URL" | sed -E 's#^https?://##; s#/.*$##')
 rm -rf "$WORK"; mkdir -p "$WORK"; chmod 700 "$WORK"
 say "Выгружаю структуру таблиц"
 "$PG/pg_dump" "$OLD_DB" --schema-only --no-owner -n public -f "$WORK/schema.raw.sql"
-grep -vE '^(CREATE SCHEMA public;|COMMENT ON SCHEMA public )' "$WORK/schema.raw.sql" > "$WORK/schema.sql"
+# служебные строки Supabase, которые в новом проекте уже есть и менять их нельзя
+grep -vE '^(CREATE SCHEMA public;|COMMENT ON SCHEMA public |ALTER DEFAULT PRIVILEGES )' "$WORK/schema.raw.sql" > "$WORK/schema.sql"
 ok "Структура: $(grep -c '^CREATE TABLE' "$WORK/schema.sql") таблиц"
 
 say "Выгружаю данные (ученики, пропуска, история, учётные записи)"
@@ -98,7 +102,21 @@ cron=$(q "$OLD_DB" "select count(*) from cron.job" 2>/dev/null || echo 0)
 
 # ------------------------------------------------------------------ 4. загрузка
 say "Создаю таблицы в новой базе"
-"$PG/psql" "$NEW_DB" -X -q -v ON_ERROR_STOP=1 -f "$WORK/schema.sql" >/dev/null
+# очистка остатков прошлой попытки (только public; пользователей там нет — проверено выше)
+q "$NEW_DB" "do \$\$ declare r record; begin
+  for r in select tablename from pg_tables where schemaname='public' loop
+    execute format('drop table if exists public.%I cascade', r.tablename); end loop;
+  for r in select p.oid::regprocedure as f from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+           where n.nspname='public'
+             and not exists (select 1 from pg_depend d where d.objid=p.oid and d.deptype='e') loop
+    execute 'drop function if exists ' || r.f || ' cascade'; end loop;
+  for r in select t.typname from pg_type t join pg_namespace n on n.oid=t.typnamespace
+           where n.nspname='public' and t.typtype='e'
+             and not exists (select 1 from pg_depend d where d.objid=t.oid and d.deptype='e') loop
+    execute format('drop type if exists public.%I cascade', r.typname); end loop;
+end \$\$" >/dev/null
+# всё в одной транзакции: при ошибке новая база останется пустой
+"$PG/psql" "$NEW_DB" -X -q -1 -v ON_ERROR_STOP=1 -f "$WORK/schema.sql" >/dev/null
 ok "Таблицы, правила доступа (RLS), функции и триггеры созданы"
 
 say "Загружаю данные"
