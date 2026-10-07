@@ -84,7 +84,7 @@ NEW_HOST=$(echo "$NEW_URL" | sed -E 's#^https?://##; s#/.*$##')
 # ------------------------------------------------------------------ 3. выгрузка
 rm -rf "$WORK"; mkdir -p "$WORK"; chmod 700 "$WORK"
 say "Выгружаю структуру таблиц"
-"$PG/pg_dump" "$OLD_DB" --schema-only --no-owner --no-privileges -n public -f "$WORK/schema.raw.sql"
+"$PG/pg_dump" "$OLD_DB" --schema-only --no-owner -n public -f "$WORK/schema.raw.sql"
 grep -vE '^(CREATE SCHEMA public;|COMMENT ON SCHEMA public )' "$WORK/schema.raw.sql" > "$WORK/schema.sql"
 ok "Структура: $(grep -c '^CREATE TABLE' "$WORK/schema.sql") таблиц"
 
