@@ -67,10 +67,11 @@ ok "Новая база:  $(q "$NEW_DB" "select current_setting('server_version'
 
 new_tables=$(q "$NEW_DB" "select count(*) from pg_tables where schemaname='public'")
 new_users=$(q "$NEW_DB" "select count(*) from auth.users")
-# Пользователи в новой базе = там уже реальные данные, трогать нельзя.
-[ "$new_users" = "0" ] || fail "В новой базе уже есть пользователи ($new_users). Нужен чистый проект."
-# Таблицы без пользователей = остатки прерванной попытки — их можно убрать.
-[ "$new_tables" = "0" ] || ok "В новой базе остались таблицы от прошлой попытки ($new_tables) — уберу их перед загрузкой"
+new_profiles=$(q "$NEW_DB" "select case when to_regclass('public.profiles') is null then 0 else (select count(*) from public.profiles) end")
+# Профили в новой базе = сайт, возможно, уже работает с ней — трогать нельзя.
+[ "$new_profiles" = "0" ] || fail "В новой базе уже есть данные приложения ($new_profiles профилей). Остановлено, чтобы ничего не стереть."
+# Без профилей всё, что там есть, — остатки прерванной попытки, их можно убрать.
+[ "$new_tables" = "0" ] && [ "$new_users" = "0" ] || ok "В новой базе остатки прошлой попытки (таблиц: $new_tables, учётных записей: $new_users) — уберу их перед загрузкой"
 
 if [ "${1:-}" = "--check" ]; then
   say "Проверка пройдена — подключения работают, новая база пустая. Переезд можно запускать без --check."
@@ -93,8 +94,10 @@ grep -vE '^(CREATE SCHEMA public;|COMMENT ON SCHEMA public |ALTER DEFAULT PRIVIL
 ok "Структура: $(grep -c '^CREATE TABLE' "$WORK/schema.sql") таблиц"
 
 say "Выгружаю данные (ученики, пропуска, история, учётные записи)"
-"$PG/pg_dump" "$OLD_DB" --data-only --no-owner --no-privileges \
-  -n public -t auth.users -t auth.identities -f "$WORK/data.sql"
+# две выгрузки: при -t ключ -n игнорируется, поэтому public и auth выгружаются отдельно
+"$PG/pg_dump" "$OLD_DB" --data-only --no-owner --no-privileges -n public -f "$WORK/data-public.sql"
+"$PG/pg_dump" "$OLD_DB" --data-only --no-owner --no-privileges -t auth.users -t auth.identities -f "$WORK/data-auth.sql"
+cat "$WORK/data-auth.sql" "$WORK/data-public.sql" > "$WORK/data.sql"
 ok "Данные выгружены ($(du -h "$WORK/data.sql" | cut -f1))"
 
 realtime=$(q "$OLD_DB" "select string_agg(format('%I.%I', schemaname, tablename), ', ') from pg_publication_tables where pubname='supabase_realtime'")
@@ -102,7 +105,8 @@ cron=$(q "$OLD_DB" "select count(*) from cron.job" 2>/dev/null || echo 0)
 
 # ------------------------------------------------------------------ 4. загрузка
 say "Создаю таблицы в новой базе"
-# очистка остатков прошлой попытки (только public; пользователей там нет — проверено выше)
+# очистка остатков прошлой попытки (данных приложения там нет — проверено выше)
+q "$NEW_DB" "delete from auth.identities; delete from auth.users" >/dev/null
 q "$NEW_DB" "do \$\$ declare r record; begin
   for r in select tablename from pg_tables where schemaname='public' loop
     execute format('drop table if exists public.%I cascade', r.tablename); end loop;
