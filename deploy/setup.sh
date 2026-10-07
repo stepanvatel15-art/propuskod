@@ -18,6 +18,8 @@ set -euo pipefail
 DOMAIN="propuskod.ru"
 API_DOMAIN="api.propuskod.ru"
 SUPABASE_HOST="ghoijytaxobqxsotctjy.supabase.co"
+# после переезда базы (deploy/migrate-db.sh) адрес новой базы хранится здесь
+[ -f /opt/propuskod/supabase-host ] && SUPABASE_HOST="$(cat /opt/propuskod/supabase-host)"
 REPO="https://github.com/stepanvatel15-art/propuskod"
 APP_DIR="/opt/propuskod/app"
 APP_PORT=3000
@@ -178,12 +180,20 @@ sleep 3
 curl -sf -o /dev/null "http://127.0.0.1:${APP_PORT}/login" && ok "Сайт отвечает" || fail "Сайт не запустился. Покажите Claude вывод команды: pm2 logs propuskod --lines 50"
 
 # ---------------------------------------------------------------- 9. HTTPS
+# nginx-конфиг выше записан заново (только порт 80), поэтому https подключаем
+# КАЖДЫЙ раз: при первом запуске — с получением сертификата, потом — уже имеющийся.
 if [ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]; then
   say "Получаю сертификат https"
   read -rp "    Ваш e-mail (для уведомлений о сертификате): " EMAIL </dev/tty
   certbot --nginx --non-interactive --agree-tos --redirect -m "$EMAIL" \
     -d "$DOMAIN" -d "www.$DOMAIN" -d "$API_DOMAIN"
+else
+  say "Подключаю имеющийся сертификат https"
+  certbot --nginx --non-interactive --reinstall --redirect \
+    -d "$DOMAIN" -d "www.$DOMAIN" -d "$API_DOMAIN"
 fi
+code=$(curl -s -m 15 -o /dev/null -w '%{http_code}' "https://${DOMAIN}/login" || true)
+[ "$code" = "200" ] || fail "https://${DOMAIN} не отвечает (код ${code}). Покажите это Claude."
 ok "https включён, сертификат будет продлеваться автоматически"
 
 printf '\n\033[1;32m Готово! Откройте https://%s \033[0m\n' "$DOMAIN"
