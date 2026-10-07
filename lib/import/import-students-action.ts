@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { parseStudentsExcel, studentDedupeKey } from '@/lib/import/parse-students-excel'
+import { getUserId } from '@/lib/auth/user-id'
 
 export type ImportSummary = {
   rowsTotal: number
@@ -20,9 +21,8 @@ export async function importStudentsAction(
 ): Promise<ImportSummary | { error: string }> {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const userId = await getUserId(supabase)
+  const user = userId ? { id: userId } : null
   if (!user) return { error: 'Не авторизован' }
 
   const classId = String(formData.get('classId') ?? '')

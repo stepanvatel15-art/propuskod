@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
+import { redirectForRole } from '@/lib/auth/roles'
 import { getSession } from '@/lib/auth/session'
 import NavLinks from './nav-links'
 import { logoutAction } from '@/app/login/actions'
@@ -39,6 +41,11 @@ export default async function AppLayout({
   const { user, profile } = await getSession()
 
   if (!user || !profile) redirect('/login')
+
+  // Проверка прав роли на текущий адрес (раньше это делал middleware отдельным запросом)
+  const path = (await headers()).get('x-pathname') ?? ''
+  const target = redirectForRole(path, profile.role)
+  if (target && target !== path) redirect(target)
 
   const links = NAV[profile.role] ?? []
 

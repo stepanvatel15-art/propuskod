@@ -1,5 +1,6 @@
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
+import { getUserId } from './user-id'
 
 export type SessionProfile = {
   role: string
@@ -11,22 +12,19 @@ export type SessionProfile = {
  * Пользователь и его профиль — один раз на запрос.
  *
  * Layout и страница вызывают эту функцию независимо, но благодаря cache()
- * запросы к Supabase (проверка входа + профиль) уходят только один раз,
- * а не дважды. Сервер Supabase далеко, каждый лишний запрос — заметная задержка.
+ * профиль запрашивается из базы только один раз.
  */
 export const getSession = cache(async () => {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const userId = await getUserId(supabase)
 
-  if (!user) return { supabase, user: null, profile: null }
+  if (!userId) return { supabase, user: null, profile: null }
 
   const { data } = await supabase
     .from('profiles')
     .select('role, full_name, active_building_id')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
-  return { supabase, user, profile: data as SessionProfile | null }
+  return { supabase, user: { id: userId }, profile: data as SessionProfile | null }
 })

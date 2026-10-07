@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getUserId } from '@/lib/auth/user-id'
 
 type CreatePassInput = {
   studentId: string
@@ -34,7 +35,8 @@ async function getStudentClassInfo(
  *  ошибок, выброшенных из Server Action, за нечитаемым кодом. */
 export async function createPassAction(input: CreatePassInput): Promise<ActionResult> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await getUserId(supabase)
+  const user = userId ? { id: userId } : null
   if (!user) return { error: 'Не авторизован' }
 
   if (!input.requestedDepartureAt) {
@@ -68,7 +70,8 @@ export async function createPassAction(input: CreatePassInput): Promise<ActionRe
  *  в истории, а не пропадает бесследно. */
 export async function cancelPassAction(passId: string): Promise<ActionResult> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await getUserId(supabase)
+  const user = userId ? { id: userId } : null
   if (!user) return { error: 'Не авторизован' }
 
   const { error } = await supabase

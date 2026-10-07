@@ -2,12 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getUserId } from '@/lib/auth/user-id'
 
 type ActionResult = { ok: true } | { error: string }
 
 async function assertCallerIsAdmin() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await getUserId(supabase)
+  const user = userId ? { id: userId } : null
   if (!user) return { error: 'Не авторизован' } as const
 
   const { data: profile } = await supabase
