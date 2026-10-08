@@ -1,12 +1,7 @@
 import * as XLSX from 'xlsx'
 import { getSession } from '@/lib/auth/session'
 import { createAdminClient } from '@/lib/supabase/admin'
-import {
-  formatDate,
-  formatTime,
-  moscowDateStringStartISO,
-  moscowDateStringEndISO,
-} from '@/lib/format/datetime'
+import { moscowDateStringStartISO, moscowDateStringEndISO } from '@/lib/format/datetime'
 
 /**
  * Выгрузка опозданий / «без карты» в Excel.
@@ -14,6 +9,24 @@ import {
  *                 &building=<id>&class=<id>&student=<id>
  * Доступ: дежурные и администраторы (по всем корпусам — для отчётов).
  */
+/**
+ * Дата и время отметки по МОСКОВСКИМ часам — в виде настоящих ячеек Excel
+ * (дата и время, а не текст). Так Excel / Numbers / Google Таблицы не будут
+ * сами «угадывать» формат и сдвигать время, а по столбцам можно сортировать.
+ */
+function moscowExcelDateTime(iso: string): { date: number; time: number } {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Moscow',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date(iso))
+  const n = (t: string) => Number(parts.find((p) => p.type === t)?.value)
+  const wallClockUTC = Date.UTC(n('year'), n('month') - 1, n('day'), n('hour'), n('minute'))
+  const serial = (wallClockUTC - Date.UTC(1899, 11, 30)) / 86_400_000
+  const date = Math.floor(serial)
+  return { date, time: serial - date }
+}
+
 const KIND_LABEL: Record<string, string> = { late: 'Опоздание', no_card: 'Без карты' }
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -71,15 +84,18 @@ export async function GET(request: Request) {
   // Лист 1 — все отметки по порядку
   const list = [
     ['Дата', 'Время', 'Отметка', 'Ученик', 'Класс', 'Корпус', 'Отметил(а)'],
-    ...rows.map((r) => [
-      formatDate(r.created_at),
-      formatTime(r.created_at),
+    ...rows.map((r) => {
+      const { date, time } = moscowExcelDateTime(r.created_at)
+      return [
+      { t: 'n', v: date, z: 'dd.mm.yyyy' },
+      { t: 'n', v: time, z: 'hh:mm' },
       KIND_LABEL[r.kind] ?? r.kind,
       r.students?.full_name ?? '',
       r.classes?.name ?? '',
       r.buildings?.name ?? '',
       r.creator?.full_name ?? '',
-    ]),
+      ]
+    }),
   ]
 
   // Лист 2 — итог по ученикам (кто чаще всего опаздывает / без карты)

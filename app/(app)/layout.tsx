@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { redirectForRole } from '@/lib/auth/roles'
 import { getSession } from '@/lib/auth/session'
 import NavLinks from './nav-links'
+import MoscowClock from './moscow-clock'
 import { logoutAction } from '@/app/login/actions'
 import { Logo } from '@/components/ui/logo'
 
@@ -66,6 +67,7 @@ export default async function AppLayout({
         </div>
 
         <div className="space-y-3 border-t border-white/10 pt-4 px-2">
+          <MoscowClock />
           <div>
             <p className="text-sm font-medium">{profile.full_name}</p>
             <p className="text-xs text-white/60">{ROLE_LABELS[profile.role] ?? profile.role}</p>
