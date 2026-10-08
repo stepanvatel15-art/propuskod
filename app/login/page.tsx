@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { loginAction } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Logo } from '@/components/ui/logo'
 
 export default function LoginPage() {
@@ -45,10 +46,9 @@ export default function LoginPage() {
             <label htmlFor="password" className="text-sm font-medium text-[var(--color-ink)]">
               Пароль
             </label>
-            <Input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               autoComplete="current-password"
               required
             />

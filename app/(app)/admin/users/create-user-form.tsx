@@ -5,6 +5,7 @@ import { createUserAction } from './actions'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 
 export default function CreateUserForm() {
   const [login, setLogin] = useState('')
@@ -42,7 +43,7 @@ export default function CreateUserForm() {
       </div>
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-[var(--color-ink-muted)]">Пароль</label>
-        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
       <div className="space-y-1.5 sm:col-span-2">
         <label className="text-xs font-medium text-[var(--color-ink-muted)]">ФИО</label>

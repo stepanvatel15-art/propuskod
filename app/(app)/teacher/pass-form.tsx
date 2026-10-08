@@ -5,30 +5,34 @@ import { createPassAction } from './actions'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { LESSON_ENDS, moscowTodayAtISO } from '@/lib/school/lessons'
 
 type Student = { id: string; full_name: string }
 
 export default function PassForm({ students }: { students: Student[] }) {
   const [studentId, setStudentId] = useState('')
+  const [mode, setMode] = useState<'lesson' | 'exact'>('lesson')
+  const [lesson, setLesson] = useState<number | null>(null)
   const [time, setTime] = useState('')
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function submit() {
-    if (!studentId || !time) {
-      setError('Выберите ученика и время выхода')
+    const lessonTime = LESSON_ENDS.find((l) => l.n === lesson)?.time
+    if (!studentId || (mode === 'lesson' ? !lessonTime : !time)) {
+      setError(mode === 'lesson' ? 'Выберите ученика и урок' : 'Выберите ученика и время выхода')
       return
     }
     setError(null)
-    const iso = new Date(time).toISOString()
+    const iso = mode === 'lesson' ? moscowTodayAtISO(lessonTime!) : new Date(time).toISOString()
 
     startTransition(async () => {
       const res = await createPassAction({ studentId, requestedDepartureAt: iso, reason })
       if ('error' in res) {
         setError(res.error)
       } else {
-        setStudentId(''); setTime(''); setReason('')
+        setStudentId(''); setTime(''); setLesson(null); setReason('')
       }
     })
   }
@@ -50,11 +54,42 @@ export default function PassForm({ students }: { students: Student[] }) {
           </select>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">
-            Время выхода (с запасом, если скоро)
-          </label>
-          <Input type="datetime-local" value={time} onChange={(e) => setTime(e.target.value)} />
+        <div className="space-y-2 sm:col-span-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-[var(--color-ink-muted)]">Когда отпустить</label>
+            <button
+              type="button"
+              onClick={() => setMode(mode === 'lesson' ? 'exact' : 'lesson')}
+              className="text-xs text-[var(--color-primary)] underline-offset-2 hover:underline"
+            >
+              {mode === 'lesson' ? 'Указать точное время' : 'Выбрать урок'}
+            </button>
+          </div>
+
+          {mode === 'lesson' ? (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {LESSON_ENDS.map((l) => (
+                <button
+                  key={l.n}
+                  type="button"
+                  onClick={() => setLesson(l.n)}
+                  aria-pressed={lesson === l.n}
+                  className={
+                    lesson === l.n
+                      ? 'rounded-lg border border-[var(--color-primary)] bg-[var(--color-primary)] px-3 py-2 text-left text-sm text-white'
+                      : 'rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-left text-sm hover:border-[var(--color-primary)]'
+                  }
+                >
+                  <span className="block font-medium">После {l.n}-го урока</span>
+                  <span className={lesson === l.n ? 'text-xs text-white/80' : 'text-xs text-[var(--color-ink-muted)]'}>
+                    в {l.time}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <Input type="datetime-local" value={time} onChange={(e) => setTime(e.target.value)} />
+          )}
         </div>
 
         <div className="space-y-1.5">

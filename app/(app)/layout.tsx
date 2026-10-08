@@ -18,12 +18,14 @@ const NAV: Record<string, { href: string; label: string }[]> = {
     { href: '/duty/history', label: 'История выходов' },
     { href: '/duty/late', label: 'Опоздания' },
     { href: '/duty/no-card', label: 'Без карты' },
+    { href: '/duty/reports', label: 'Выгрузка в Excel' },
   ],
   admin: [
     { href: '/admin/users', label: 'Пользователи' },
     { href: '/admin/classes', label: 'Классы' },
     { href: '/admin/classes/import', label: 'Загрузить список класса' },
     { href: '/admin/buildings', label: 'Корпуса' },
+    { href: '/duty/reports', label: 'Выгрузка в Excel' },
   ],
 }
 
