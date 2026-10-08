@@ -6,10 +6,10 @@ export const LESSON_ENDS: { n: number; time: string }[] = [
   { n: 1, time: '09:15' },
   { n: 2, time: '10:20' },
   { n: 3, time: '11:25' },
-  { n: 4, time: '12:30' },
-  { n: 5, time: '13:35' },
-  { n: 6, time: '14:30' },
-  { n: 7, time: '15:25' },
+  { n: 4, time: '12:25' },
+  { n: 5, time: '13:30' },
+  { n: 6, time: '14:35' },
+  { n: 7, time: '15:35' },
 ]
 
 const TIME_ZONE = 'Europe/Moscow'
