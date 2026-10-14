@@ -54,7 +54,7 @@ export default function SearchAndMark({
   return (
     <Card className="space-y-3 p-5">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">
+        <label className="text-[13px] font-semibold text-[#475467]">
           Поиск по фамилии
         </label>
         <Input
@@ -66,7 +66,7 @@ export default function SearchAndMark({
       </div>
 
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}
@@ -75,7 +75,7 @@ export default function SearchAndMark({
         matches.length === 0 ? (
           <p className="px-1 text-sm text-[var(--color-ink-muted)]">Никого не нашлось</p>
         ) : (
-          <ul className="divide-y divide-[var(--color-border)] overflow-hidden rounded-lg border border-[var(--color-border)]">
+          <ul className="divide-y divide-[var(--color-border)] overflow-x-auto rounded-xl border border-[var(--color-border)]">
             {matches.map((s) => (
               <li key={s.id}>
                 <button

@@ -42,12 +42,12 @@ export default function UsersTable({ users }: { users: User[] }) {
   return (
     <div className="space-y-3">
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}
-      <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
-        <div className="grid grid-cols-[1fr_1.4fr_1.4fr_auto_auto] gap-3 bg-[var(--color-surface)] px-4 py-2 text-xs font-medium text-[var(--color-ink-muted)]">
+      <Card className="divide-y divide-[var(--color-border)] overflow-x-auto">
+        <div className="grid min-w-[640px] grid-cols-[1fr_1.4fr_1.4fr_auto_auto] gap-3 bg-[var(--color-surface)] px-4 py-2 text-[13px] font-semibold text-[#475467]">
           <span>Логин</span>
           <span>ФИО</span>
           <span>Роль</span>
@@ -55,14 +55,14 @@ export default function UsersTable({ users }: { users: User[] }) {
           <span></span>
         </div>
         {users.map((u) => (
-          <div key={u.id} className="grid grid-cols-[1fr_1.4fr_1.4fr_auto_auto] items-center gap-3 px-4 py-3 text-sm">
+          <div key={u.id} className="grid min-w-[640px] grid-cols-[1fr_1.4fr_1.4fr_auto_auto] items-center gap-3 px-4 py-3 text-sm">
             <span className="text-[var(--color-ink)]">{u.login}</span>
             <span className="text-[var(--color-ink)]">{u.full_name}</span>
             <select
               defaultValue={u.role}
               disabled={isPending}
               onChange={(e) => handleRoleChange(u.id, e.target.value as User['role'])}
-              className="h-8 rounded-lg border border-[var(--color-border)] bg-white px-2 text-xs"
+              className="h-9 rounded-xl border border-[var(--color-border)] bg-white px-2 text-xs"
             >
               {(Object.keys(ROLE_LABELS) as User['role'][]).map((r) => (
                 <option key={r} value={r}>{ROLE_LABELS[r]}</option>

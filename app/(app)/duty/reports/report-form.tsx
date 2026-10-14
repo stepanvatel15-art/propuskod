@@ -11,7 +11,7 @@ type Student = { id: string; full_name: string; class_id: string }
 type Preset = 'today' | 'yesterday' | 'week' | 'month' | 'custom'
 
 const SELECT =
-  'h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] disabled:bg-[var(--color-surface)] disabled:text-[var(--color-ink-muted)]'
+  'h-11 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] disabled:bg-[var(--color-surface)] disabled:text-[var(--color-ink-muted)]'
 
 /** Дата по Москве со сдвигом в днях → YYYY-MM-DD */
 function moscowDate(offsetDays = 0): string {
@@ -83,7 +83,7 @@ export default function ReportForm({
   return (
     <Card className="space-y-5 p-5">
       <div className="space-y-2">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">Период</label>
+        <label className="text-[13px] font-semibold text-[#475467]">Период</label>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((p) => (
             <button
@@ -93,8 +93,8 @@ export default function ReportForm({
               aria-pressed={preset === p.id}
               className={
                 preset === p.id
-                  ? 'rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white'
-                  : 'rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-sm hover:border-[var(--color-primary)]'
+                  ? 'rounded-full bg-[var(--color-ink)] px-3.5 py-1.5 text-sm font-bold text-white'
+                  : 'rounded-full border border-[var(--color-border)] bg-white px-3.5 py-1.5 text-sm font-semibold hover:border-[var(--color-primary)]'
               }
             >
               {p.label}
@@ -114,7 +114,7 @@ export default function ReportForm({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">Что выгрузить</label>
+        <label className="text-[13px] font-semibold text-[#475467]">Что выгрузить</label>
         <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className={SELECT}>
           <option value="all">Опоздания и без карты</option>
           <option value="late">Только опоздания</option>
@@ -124,7 +124,7 @@ export default function ReportForm({
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Корпус</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Корпус</label>
           <select
             value={buildingId}
             onChange={(e) => { setBuildingId(e.target.value); setClassId(''); setStudentId('') }}
@@ -135,7 +135,7 @@ export default function ReportForm({
           </select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Класс</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Класс</label>
           <select
             value={classId}
             onChange={(e) => { setClassId(e.target.value); setStudentId('') }}
@@ -146,7 +146,7 @@ export default function ReportForm({
           </select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Ученик</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Ученик</label>
           <select
             value={studentId}
             disabled={!classId}
@@ -160,7 +160,7 @@ export default function ReportForm({
       </div>
 
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">{error}</p>
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">{error}</p>
       )}
 
       <Button onClick={download}>Скачать Excel</Button>

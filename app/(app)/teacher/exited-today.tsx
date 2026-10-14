@@ -11,7 +11,7 @@ type ExitedPass = {
 export default function ExitedToday({ passes }: { passes: ExitedPass[] }) {
   if (passes.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
+      <p className="rounded-2xl border-2 border-dashed border-[var(--color-border)] px-4 py-8 text-center text-sm text-[var(--color-ink-muted)]">
         Сегодня ещё никто не вышел
       </p>
     )
@@ -20,7 +20,7 @@ export default function ExitedToday({ passes }: { passes: ExitedPass[] }) {
   return (
     <div className="space-y-2">
       {passes.map((p) => (
-        <Card key={p.id} className="flex items-center justify-between p-4">
+        <Card key={p.id} className="flex items-center justify-between gap-3 p-4">
           <p className="text-sm font-medium text-[var(--color-ink)]">{p.students?.full_name}</p>
           <Badge tone="success">
             Вышел в {p.used_at ? formatTime(p.used_at) : '—'}

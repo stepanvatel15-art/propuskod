@@ -17,11 +17,11 @@ export default function AdminImportForm({ classes }: { classes: ClassOption[] })
     <div className="space-y-6">
       <Card className="space-y-4 p-5">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Класс</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Класс</label>
           <select
             value={classId}
             onChange={(e) => setClassId(e.target.value)}
-            className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+            className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
           >
             <option value="">— выберите класс —</option>
             {classes.map((c) => (
@@ -56,7 +56,7 @@ export default function AdminImportForm({ classes }: { classes: ClassOption[] })
             accept=".xlsx,.xls"
             required
             disabled={!classId}
-            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)] disabled:opacity-50"
+            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)] disabled:opacity-50"
           />
           <Button type="submit" disabled={isPending || !classId}>
             {isPending ? 'Загружаем…' : 'Загрузить'}
@@ -64,7 +64,7 @@ export default function AdminImportForm({ classes }: { classes: ClassOption[] })
         </form>
 
         {error && (
-          <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+          <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
             {error}
           </p>
         )}

@@ -17,7 +17,7 @@ export default async function DutyReportsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Выгрузка в Excel</h1>
+        <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">Выгрузка в Excel</h1>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Опоздания и приход без карты за выбранный период — с фильтром по корпусу, классу или ученику.
         </p>

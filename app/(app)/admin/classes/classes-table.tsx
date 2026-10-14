@@ -58,25 +58,25 @@ export default function ClassesTable({
   return (
     <div className="space-y-3">
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}
-      <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
-        <div className="grid grid-cols-[1fr_1.6fr_1fr_auto] gap-3 bg-[var(--color-surface)] px-4 py-2 text-xs font-medium text-[var(--color-ink-muted)]">
+      <Card className="divide-y divide-[var(--color-border)] overflow-x-auto">
+        <div className="grid min-w-[600px] grid-cols-[1fr_1.6fr_1fr_auto] gap-3 bg-[var(--color-surface)] px-4 py-2 text-[13px] font-semibold text-[#475467]">
           <span>Класс</span>
           <span>Классный руководитель</span>
           <span>Корпус</span>
           <span></span>
         </div>
         {classes.map((c) => (
-          <div key={c.id} className="grid grid-cols-[1fr_1.6fr_1fr_auto] items-center gap-3 px-4 py-3 text-sm">
+          <div key={c.id} className="grid min-w-[600px] grid-cols-[1fr_1.6fr_1fr_auto] items-center gap-3 px-4 py-3 text-sm">
             <span className="font-medium text-[var(--color-ink)]">{c.name}</span>
             <select
               defaultValue={c.homeroom_teacher_id ?? ''}
               disabled={isPending}
               onChange={(e) => handleTeacherChange(c.id, e.target.value || null)}
-              className="h-9 rounded-lg border border-[var(--color-border)] bg-white px-2 text-sm"
+              className="h-10 rounded-xl border border-[var(--color-border)] bg-white px-2 text-sm"
             >
               <option value="">— не назначен —</option>
               {teachers.map((t) => (
@@ -87,7 +87,7 @@ export default function ClassesTable({
               defaultValue={c.building_id ?? ''}
               disabled={isPending}
               onChange={(e) => handleBuildingChange(c.id, e.target.value || null)}
-              className="h-9 rounded-lg border border-[var(--color-border)] bg-white px-2 text-sm"
+              className="h-10 rounded-xl border border-[var(--color-border)] bg-white px-2 text-sm"
             >
               <option value="">— не назначен —</option>
               {buildings.map((b) => (

@@ -1,36 +1,56 @@
 @import "tailwindcss";
 
+/* Шрифт Manrope лежит на нашем сервере (public/fonts) — не зависит от Google Fonts */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/fonts/manrope-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /*
-  Токены дизайна — школьная система пропусков.
-  Ориентир: визуальный язык школьных/городских порталов Москвы
-  (school.mos.ru, МЭШ) и школы 1353 в Зеленограде — тёмно-синее
-  «форменное» шасси интерфейса (шапка/боковая панель), светлый
-  рабочий контент, сдержанный акцент. Один шрифт (Inter),
-  чёткая, некрикливая иерархия — инструмент для ежедневной работы,
-  а не промо-лендинг.
+  Токены дизайна ПропусКода (школа 1353).
+  Светлый современный интерфейс: белое меню, мягкий серо-голубой фон,
+  насыщенный синий для действий, скруглённые карточки и кнопки.
+  Шрифт Manrope (кириллица).
 */
 
 @theme {
-  --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Manrope", "Segoe UI", system-ui, sans-serif;
 
-  --color-ink: #101b2d;          /* основной текст */
+  --color-ink: #101828;          /* основной текст */
   --color-ink-muted: #5b6b85;    /* вторичный текст */
 
-  --color-primary: #1b4b91;      /* бренд-синий: кнопки, ссылки, активные состояния */
-  --color-primary-dark: #123566; /* шасси интерфейса: боковая панель, hover/pressed */
-  --color-primary-light: #e8eef8;/* лёгкая подложка под primary-элементами */
+  --color-primary: #1f4fd1;      /* бренд-синий: кнопки, ссылки, активные состояния */
+  --color-primary-dark: #163a9c; /* шасси интерфейса: боковая панель, hover/pressed */
+  --color-primary-light: #e9effd;/* лёгкая подложка под primary-элементами */
 
-  --color-surface: #f2f5fa;      /* фон страницы */
+  --color-surface: #f4f6fb;      /* фон страницы */
   --color-surface-card: #ffffff; /* карточки/панели */
-  --color-border: #dee4ee;       /* тонкие границы */
+  --color-border: #e3e8f0;       /* тонкие границы */
 
-  --color-accent: #d98e2b;       /* тёплый акцент — только "требует внимания" */
-  --color-accent-light: #fbf1de;
+  --color-accent: #8a4300;       /* тёплый акцент — только "требует внимания" */
+  --color-accent-light: #fff1e0;
 
-  --color-success: #1e8e5a;
-  --color-success-light: #e6f4ed;
+  --color-success: #12805c;
+  --color-success-light: #e6f6ef;
   --color-danger: #c4362f;
   --color-danger-light: #fbeae9;
+
+  --color-violet: #6b3fc4;
+  --color-violet-light: #f3ecfd;
+
+  --shadow-card: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
 }
 
 html {
@@ -48,8 +68,11 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
+
+/* Цифры времени не «прыгают» по ширине */
+.tabular { font-variant-numeric: tabular-nums; }
 
 /* Плавная, но не навязчивая обратная связь для интерактивных элементов */
 button,

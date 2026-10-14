@@ -1,10 +1,11 @@
 import { cn } from './cn'
 import type { HTMLAttributes } from 'react'
 
-type Tone = 'neutral' | 'accent' | 'success' | 'danger' | 'primary'
+type Tone = 'neutral' | 'accent' | 'success' | 'danger' | 'primary' | 'violet'
 
 const TONE_CLASSES: Record<Tone, string> = {
-  neutral: 'bg-[var(--color-surface)] text-[var(--color-ink-muted)]',
+  neutral: 'bg-[#eef1f6] text-[#344054]',
+  violet: 'bg-[var(--color-violet-light)] text-[var(--color-violet)]',
   accent: 'bg-[var(--color-accent-light)] text-[var(--color-accent)]',
   success: 'bg-[var(--color-success-light)] text-[var(--color-success)]',
   danger: 'bg-[var(--color-danger-light)] text-[var(--color-danger)]',
@@ -19,7 +20,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold',
         TONE_CLASSES[tone],
         className
       )}

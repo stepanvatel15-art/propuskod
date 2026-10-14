@@ -55,7 +55,7 @@ export async function AttendanceTeacherStatsPage({
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <p className="text-sm text-[var(--color-ink-muted)]">{klass.name}</p>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">{title}</h1>
+        <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">{title}</h1>
       </div>
 
       <DateRangeFilter current={range} from={sp.from ?? ''} to={sp.to ?? ''} />

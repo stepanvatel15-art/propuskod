@@ -35,7 +35,7 @@ export default async function StudentHistoryPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-[var(--color-ink)]">{student.full_name}</h1>
+        <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">{student.full_name}</h1>
         {student.birth_date && (
           <p className="text-sm text-[var(--color-ink-muted)]">
             Дата рождения: {formatDate(student.birth_date)}
@@ -46,7 +46,7 @@ export default async function StudentHistoryPage({
       <HistoryFilters currentRange={range} currentStatus={status} />
 
       {passes.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
+        <p className="rounded-2xl border-2 border-dashed border-[var(--color-border)] px-4 py-8 text-center text-sm text-[var(--color-ink-muted)]">
           Нет пропусков за выбранный период
         </p>
       ) : (

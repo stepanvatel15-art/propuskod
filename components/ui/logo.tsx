@@ -1,16 +1,15 @@
-/**
- * Простой знак-монограмма для внутреннего инструмента школы:
- * стилизованный «пропуск» (билет со скруглённым краем и меткой).
- * Не претендует на реальный герб школы — заменить на официальный
- * логотип школы, когда он будет under public/logo.svg.
- */
-export function Logo({ size = 28 }: { size?: number }) {
+/* eslint-disable @next/next/no-img-element */
+
+/** Официальный логотип школы 1353 (public/logo-1353.png, прозрачный фон). */
+export function Logo({ height = 56 }: { height?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <rect x="2" y="6" width="28" height="20" rx="4" fill="var(--color-primary)" />
-      <circle cx="10" cy="16" r="3.2" fill="white" />
-      <rect x="16" y="12" width="10" height="2.4" rx="1.2" fill="white" fillOpacity="0.85" />
-      <rect x="16" y="17" width="7" height="2.4" rx="1.2" fill="white" fillOpacity="0.6" />
-    </svg>
+    <img
+      src="/logo-1353.png"
+      alt="Школа 1353"
+      height={height}
+      width={Math.round((height * 188) / 240)}
+      style={{ height, width: 'auto' }}
+      className="shrink-0"
+    />
   )
 }

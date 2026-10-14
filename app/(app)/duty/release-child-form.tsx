@@ -62,7 +62,7 @@ export default function ReleaseChildForm({
   return (
     <Card className="space-y-3 p-5">
       <div>
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Выпустить ребёнка самостоятельно</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Выпустить ребёнка самостоятельно</h2>
         <p className="text-xs text-[var(--color-ink-muted)]">
           Используйте, если классный руководитель недоступен. Причина обязательна — например,
           «устное разрешение матери по телефону».
@@ -71,11 +71,11 @@ export default function ReleaseChildForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Класс</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Класс</label>
           <select
             value={classId}
             onChange={(e) => { setClassId(e.target.value); setStudentId('') }}
-            className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+            className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
           >
             <option value="">— выберите класс —</option>
             {classes.map((c) => (
@@ -85,12 +85,12 @@ export default function ReleaseChildForm({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Ученик</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Ученик</label>
           <select
             value={studentId}
             disabled={!classId}
             onChange={(e) => setStudentId(e.target.value)}
-            className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] disabled:bg-[var(--color-surface)] disabled:text-[var(--color-ink-muted)]"
+            className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] disabled:bg-[var(--color-surface)] disabled:text-[var(--color-ink-muted)]"
           >
             <option value="">{classId ? '— выберите ученика —' : 'сначала выберите класс'}</option>
             {studentsInClass.map((s) => (
@@ -101,7 +101,7 @@ export default function ReleaseChildForm({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">
+        <label className="text-[13px] font-semibold text-[#475467]">
           С чьего разрешения / причина
         </label>
         <Input
@@ -112,7 +112,7 @@ export default function ReleaseChildForm({
       </div>
 
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}

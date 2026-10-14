@@ -14,7 +14,7 @@ export default function CreateClassForm() {
   return (
     <Card className="flex flex-col gap-3 p-5 sm:flex-row sm:items-end">
       <div className="flex-1 space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">Название класса</label>
+        <label className="text-[13px] font-semibold text-[#475467]">Название класса</label>
         <Input placeholder="Например, 9А" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <Button
@@ -34,7 +34,7 @@ export default function CreateClassForm() {
         Создать
       </Button>
       {error && (
-        <p className="w-full rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="w-full rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}

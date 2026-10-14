@@ -52,12 +52,12 @@ export async function AttendanceDutyPage({ kind, title }: { kind: AttendanceKind
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <h1 className="text-2xl font-semibold text-[var(--color-ink)]">{title}</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">{title}</h1>
 
       <SearchAndMark students={studentRows} kind={kind} actionLabel="Отметить" />
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Сегодня</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Сегодня</h2>
         <TodayList
           marks={(todayMarks ?? []) as unknown as {
             id: string

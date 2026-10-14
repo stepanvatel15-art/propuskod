@@ -38,14 +38,14 @@ export default function PassForm({ students }: { students: Student[] }) {
   }
 
   return (
-    <Card className="space-y-4 p-5">
+    <Card className="space-y-4 p-4 sm:p-6">
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5 sm:col-span-2">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Ученик</label>
+          <label className="text-[13px] font-semibold text-[#475467]">Ученик</label>
           <select
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
-            className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+            className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-3.5 text-[15px] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
           >
             <option value="">— выберите ученика —</option>
             {students.map((s) => (
@@ -56,11 +56,11 @@ export default function PassForm({ students }: { students: Student[] }) {
 
         <div className="space-y-2 sm:col-span-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-[var(--color-ink-muted)]">Когда отпустить</label>
+            <label className="text-[13px] font-semibold text-[#475467]">Когда отпустить</label>
             <button
               type="button"
               onClick={() => setMode(mode === 'lesson' ? 'exact' : 'lesson')}
-              className="text-xs text-[var(--color-primary)] underline-offset-2 hover:underline"
+              className="text-[13px] font-bold text-[var(--color-primary)] underline-offset-2 hover:underline"
             >
               {mode === 'lesson' ? 'Указать точное время' : 'Выбрать урок'}
             </button>
@@ -75,14 +75,15 @@ export default function PassForm({ students }: { students: Student[] }) {
                   onClick={() => setLesson(l.n)}
                   aria-pressed={lesson === l.n}
                   className={
-                    lesson === l.n
-                      ? 'rounded-lg border border-[var(--color-primary)] bg-[var(--color-primary)] px-3 py-2 text-left text-sm text-white'
-                      : 'rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-left text-sm hover:border-[var(--color-primary)]'
+                    'flex h-16 flex-col justify-center rounded-2xl border px-3.5 text-left ' +
+                    (lesson === l.n
+                      ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white'
+                      : 'border-[var(--color-border)] bg-white text-[var(--color-ink)] hover:border-[var(--color-primary)]')
                   }
                 >
-                  <span className="block font-medium">После {l.n}-го урока</span>
-                  <span className={lesson === l.n ? 'text-xs text-white/80' : 'text-xs text-[var(--color-ink-muted)]'}>
-                    в {l.time}
+                  <span className="tabular text-xl font-extrabold leading-tight">{l.time}</span>
+                  <span className={'text-xs font-semibold ' + (lesson === l.n ? 'text-white/85' : 'text-[var(--color-ink-muted)]')}>
+                    после {l.n}-го урока
                   </span>
                 </button>
               ))}
@@ -92,19 +93,19 @@ export default function PassForm({ students }: { students: Student[] }) {
           )}
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--color-ink-muted)]">Причина (необязательно)</label>
+        <div className="space-y-1.5 sm:col-span-2">
+          <label className="text-[13px] font-semibold text-[#475467]">Причина (необязательно)</label>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Например, к врачу" />
         </div>
       </div>
 
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}
 
-      <Button onClick={submit} disabled={isPending}>
+      <Button size="lg" onClick={submit} disabled={isPending} className="w-full sm:w-auto">
         {isPending ? 'Сохраняем…' : 'Выдать пропуск'}
       </Button>
     </Card>

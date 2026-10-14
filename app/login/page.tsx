@@ -15,19 +15,19 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-surface)] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <Logo size={40} />
+          <Logo height={110} />
           <div>
-            <h1 className="text-lg font-semibold text-[var(--color-ink)]">
-              Пропуска на выход
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-ink)]">
+              ПропусКод
             </h1>
             <p className="text-sm text-[var(--color-ink-muted)]">
-              Электронная система школы
+              Пропуска на выход · школа 1353
             </p>
           </div>
         </div>
 
         <form
-          className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-sm"
+          className="space-y-4 rounded-3xl bg-[var(--color-surface-card)] p-6 shadow-card"
           action={(formData) =>
             startTransition(async () => {
               const res = await loginAction(formData)
@@ -36,14 +36,14 @@ export default function LoginPage() {
           }
         >
           <div className="space-y-1.5">
-            <label htmlFor="login" className="text-sm font-medium text-[var(--color-ink)]">
+            <label htmlFor="login" className="text-lg font-extrabold text-[var(--color-ink)]">
               Логин
             </label>
             <Input id="login" name="login" autoComplete="username" required />
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-[var(--color-ink)]">
+            <label htmlFor="password" className="text-lg font-extrabold text-[var(--color-ink)]">
               Пароль
             </label>
             <PasswordInput
@@ -55,12 +55,12 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+            <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
               {error}
             </p>
           )}
 
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button type="submit" size="lg" disabled={isPending} className="w-full">
             {isPending ? 'Входим…' : 'Войти'}
           </Button>
         </form>

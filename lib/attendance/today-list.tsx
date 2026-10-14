@@ -53,17 +53,17 @@ export default function TodayList({
   return (
     <div className="space-y-2">
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
           {error}
         </p>
       )}
       {marks.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
+        <p className="rounded-2xl border-2 border-dashed border-[var(--color-border)] px-4 py-8 text-center text-sm text-[var(--color-ink-muted)]">
           Сегодня отметок ещё нет
         </p>
       ) : (
         marks.map((m) => (
-          <Card key={m.id} className="flex items-center justify-between p-3">
+          <Card key={m.id} className="flex items-center justify-between gap-3 p-3">
             <div>
               <p className="text-sm font-medium text-[var(--color-ink)]">{m.students?.full_name}</p>
               <p className="text-xs text-[var(--color-ink-muted)]">

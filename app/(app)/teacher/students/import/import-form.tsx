@@ -13,7 +13,7 @@ export default function ImportStudentsForm({ classId }: { classId: string }) {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-[var(--color-ink)]">Загрузка списка класса</h1>
+        <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">Загрузка списка класса</h1>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Файл .xlsx с колонкой «ФИО» в первой строке. Колонка «Дата рождения»
           необязательна — можно оставить пустой или не добавлять вовсе.
@@ -42,7 +42,7 @@ export default function ImportStudentsForm({ classId }: { classId: string }) {
             name="file"
             accept=".xlsx,.xls"
             required
-            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)]"
+            className="block w-full text-sm text-[var(--color-ink-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary-light)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--color-primary)]"
           />
           <Button type="submit" disabled={isPending}>
             {isPending ? 'Загружаем…' : 'Загрузить'}
@@ -50,7 +50,7 @@ export default function ImportStudentsForm({ classId }: { classId: string }) {
         </form>
 
         {error && (
-          <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
+          <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)]">
             {error}
           </p>
         )}

@@ -46,15 +46,15 @@ export default function DateRangeFilter({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <div className="flex gap-1 rounded-lg border border-[var(--color-border)] bg-white p-1">
+      <div className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-[var(--color-border)] bg-white p-1 [scrollbar-width:none]">
         {PRESETS.map((p) => (
           <button
             key={p.value}
             onClick={() => setPreset(p.value)}
             className={
               current === p.value
-                ? 'rounded-md bg-[var(--color-primary)] px-3 py-1 text-white'
-                : 'rounded-md px-3 py-1 text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)]'
+                ? 'shrink-0 whitespace-nowrap rounded-full bg-[var(--color-ink)] px-3.5 py-1.5 font-bold text-white'
+                : 'shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 font-semibold text-[#344054] hover:bg-[var(--color-surface)]'
             }
           >
             {p.label}
@@ -63,23 +63,23 @@ export default function DateRangeFilter({
       </div>
 
       {current === 'custom' && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="date"
             value={customFrom}
             onChange={(e) => setCustomFrom(e.target.value)}
-            className="h-9 rounded-lg border border-[var(--color-border)] px-2 text-sm"
+            className="h-10 rounded-xl border border-[var(--color-border)] px-2 text-sm"
           />
           <span className="text-[var(--color-ink-muted)]">—</span>
           <input
             type="date"
             value={customTo}
             onChange={(e) => setCustomTo(e.target.value)}
-            className="h-9 rounded-lg border border-[var(--color-border)] px-2 text-sm"
+            className="h-10 rounded-xl border border-[var(--color-border)] px-2 text-sm"
           />
           <button
             onClick={applyCustom}
-            className="rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-sm text-white"
+            className="h-10 rounded-full bg-[var(--color-primary)] px-4 text-sm font-bold text-white"
           >
             Применить
           </button>

@@ -21,15 +21,15 @@ export default function DateFilter({ current }: { current: string }) {
   }
 
   return (
-    <div className="flex gap-1 rounded-lg border border-[var(--color-border)] bg-white p-1 text-sm">
+    <div className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-[var(--color-border)] bg-white p-1 [scrollbar-width:none] text-sm">
       {RANGES.map((r) => (
         <button
           key={r.value}
           onClick={() => update(r.value)}
           className={
             current === r.value
-              ? 'rounded-md bg-[var(--color-primary)] px-3 py-1 text-white'
-              : 'rounded-md px-3 py-1 text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)]'
+              ? 'shrink-0 whitespace-nowrap rounded-full bg-[var(--color-ink)] px-3.5 py-1.5 font-bold text-white'
+              : 'shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 font-semibold text-[#344054] hover:bg-[var(--color-surface)]'
           }
         >
           {r.label}

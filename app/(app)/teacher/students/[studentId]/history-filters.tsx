@@ -36,15 +36,15 @@ export default function HistoryFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <div className="flex gap-1 rounded-lg border border-[var(--color-border)] bg-white p-1">
+      <div className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-[var(--color-border)] bg-white p-1 [scrollbar-width:none]">
         {RANGES.map((r) => (
           <button
             key={r.value}
             onClick={() => updateParam('range', r.value)}
             className={
               currentRange === r.value
-                ? 'rounded-md bg-[var(--color-primary)] px-3 py-1 text-white'
-                : 'rounded-md px-3 py-1 text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)]'
+                ? 'shrink-0 whitespace-nowrap rounded-full bg-[var(--color-ink)] px-3.5 py-1.5 font-bold text-white'
+                : 'shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 font-semibold text-[#344054] hover:bg-[var(--color-surface)]'
             }
           >
             {r.label}
@@ -55,7 +55,7 @@ export default function HistoryFilters({
       <select
         value={currentStatus}
         onChange={(e) => updateParam('status', e.target.value)}
-        className="h-9 rounded-lg border border-[var(--color-border)] bg-white px-2 text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+        className="h-10 rounded-xl border border-[var(--color-border)] bg-white px-2 text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
       >
         {STATUSES.map((s) => (
           <option key={s.value} value={s.value}>{s.label}</option>

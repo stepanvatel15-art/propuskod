@@ -31,7 +31,7 @@ export default function StatsTable({
 
   if (stats.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
+      <p className="rounded-2xl border-2 border-dashed border-[var(--color-border)] px-4 py-8 text-center text-sm text-[var(--color-ink-muted)]">
         За выбранный период отметок нет
       </p>
     )
@@ -60,8 +60,8 @@ export default function StatsTable({
       </Card>
 
       {/* Таблица тех же данных */}
-      <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
-        <div className="grid grid-cols-[1fr_auto] gap-3 bg-[var(--color-surface)] px-4 py-2 text-xs font-medium text-[var(--color-ink-muted)]">
+      <Card className="divide-y divide-[var(--color-border)] overflow-x-auto">
+        <div className="grid grid-cols-[1fr_auto] gap-3 bg-[var(--color-surface)] px-4 py-2 text-[13px] font-semibold text-[#475467]">
           <span>Ученик</span>
           <span>Количество</span>
         </div>

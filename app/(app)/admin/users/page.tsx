@@ -12,15 +12,15 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Пользователи</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">Пользователи</h1>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Новый пользователь</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Новый пользователь</h2>
         <CreateUserForm />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Все пользователи</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Все пользователи</h2>
         <UsersTable users={users ?? []} />
       </section>
     </div>

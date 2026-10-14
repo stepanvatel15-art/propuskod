@@ -64,12 +64,12 @@ export default async function DutyHistoryPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-lg font-semibold text-[var(--color-ink)]">История выходов</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">История выходов</h1>
 
       <DateFilter current={range} />
 
       {passes.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-ink-muted)]">
+        <p className="rounded-2xl border-2 border-dashed border-[var(--color-border)] px-4 py-8 text-center text-sm text-[var(--color-ink-muted)]">
           Нет записей за выбранный период
         </p>
       ) : (
@@ -77,7 +77,7 @@ export default async function DutyHistoryPage({
           {passes.map((p) => {
             const isDutyIssued = p.creator?.role === 'security' || p.creator?.role === 'admin'
             return (
-              <Card key={p.id} className="flex items-center justify-between p-4">
+              <Card key={p.id} className="flex items-center justify-between gap-3 p-4">
                 <div>
                   <p className="text-sm font-medium text-[var(--color-ink)]">{p.students?.full_name}</p>
                   <p className="text-xs text-[var(--color-ink-muted)]">

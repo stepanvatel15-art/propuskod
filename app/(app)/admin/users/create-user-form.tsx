@@ -38,23 +38,23 @@ export default function CreateUserForm() {
   return (
     <Card className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">Логин</label>
+        <label className="text-[13px] font-semibold text-[#475467]">Логин</label>
         <Input value={login} onChange={(e) => setLogin(e.target.value)} />
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">Пароль</label>
+        <label className="text-[13px] font-semibold text-[#475467]">Пароль</label>
         <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
       <div className="space-y-1.5 sm:col-span-2">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">ФИО</label>
+        <label className="text-[13px] font-semibold text-[#475467]">ФИО</label>
         <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-[var(--color-ink-muted)]">Роль</label>
+        <label className="text-[13px] font-semibold text-[#475467]">Роль</label>
         <select
           value={role}
           onChange={(e) => setRole(e.target.value as typeof role)}
-          className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+          className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
         >
           <option value="teacher">Классный руководитель</option>
           <option value="security">Дежурный администратор</option>
@@ -67,7 +67,7 @@ export default function CreateUserForm() {
         </Button>
       </div>
       {error && (
-        <p className="rounded-lg bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)] sm:col-span-2">
+        <p className="rounded-xl bg-[var(--color-danger-light)] px-3 py-2 text-sm text-[var(--color-danger)] sm:col-span-2">
           {error}
         </p>
       )}

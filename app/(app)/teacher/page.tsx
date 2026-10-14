@@ -51,21 +51,21 @@ export default async function TeacherPage() {
     <div className="mx-auto max-w-3xl space-y-10">
       <div>
         <p className="text-sm text-[var(--color-ink-muted)]">Классный руководитель</p>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">{klass.name}</h1>
+        <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">{klass.name}</h1>
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Новый пропуск</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Новый пропуск</h2>
         <PassForm students={students ?? []} />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Активные пропуска</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Активные пропуска</h2>
         <ActiveList passes={(active ?? []) as unknown as PassRow[]} classId={klass.id} />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Вышли сегодня</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Вышли сегодня</h2>
         <ExitedToday passes={(exitedToday ?? []) as unknown as ExitedRow[]} />
       </section>
     </div>

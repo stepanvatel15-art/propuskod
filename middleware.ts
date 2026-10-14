@@ -53,5 +53,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // статика (логотип, шрифты) отдаётся без проверки входа — иначе на странице входа не видно логотипа
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|fonts/|.*\\.(?:png|svg|jpg|jpeg|webp|woff2|txt)$).*)'],
 }

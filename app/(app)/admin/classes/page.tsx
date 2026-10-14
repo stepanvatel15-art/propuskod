@@ -32,15 +32,15 @@ export default async function AdminClassesPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Классы</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight text-[var(--color-ink)] md:text-[32px]">Классы</h1>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Новый класс</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Новый класс</h2>
         <CreateClassForm />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--color-ink)]">Все классы</h2>
+        <h2 className="text-lg font-extrabold text-[var(--color-ink)]">Все классы</h2>
         <ClassesTable
           classes={(classes ?? []) as unknown as KlassRow[]}
           teachers={teachers ?? []}
