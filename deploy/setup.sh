@@ -118,6 +118,12 @@ map $http_upgrade $connection_upgrade {
   default upgrade;
   ''      close;
 }
+
+# Ответы сайта при обновлении входа несут длинные cookie Supabase —
+# со стандартным буфером nginx отдаёт 502 «upstream sent too big header».
+proxy_buffer_size 32k;
+proxy_buffers 8 32k;
+proxy_busy_buffers_size 64k;
 EOF
 
 cat > /etc/nginx/sites-available/propuskod <<EOF
