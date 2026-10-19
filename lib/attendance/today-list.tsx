@@ -26,7 +26,7 @@ export default function TodayList({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  useLiveRefresh({ channel: `attendance-${kind}-${buildingId}`, table: 'attendance_marks', filter: `building_id=eq.${buildingId}`, pollMs: 30_000 })
+  useLiveRefresh({ channel: `attendance-${kind}-${buildingId}`, table: 'attendance_marks', filter: `building_id=eq.${buildingId}`, pollMs: 60_000 })
 
   function handleDelete(markId: string) {
     setError(null)

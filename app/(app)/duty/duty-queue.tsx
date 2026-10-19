@@ -23,7 +23,7 @@ export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; 
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  useLiveRefresh({ channel: `duty-passes-${buildingId}`, table: 'passes', filter: `building_id=eq.${buildingId}`, pollMs: 10_000 })
+  useLiveRefresh({ channel: `duty-passes-${buildingId}`, table: 'passes', filter: `building_id=eq.${buildingId}`, pollMs: 60_000 })
 
   function handleMarkUsed(passId: string) {
     setError(null)

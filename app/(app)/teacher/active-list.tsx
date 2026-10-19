@@ -19,7 +19,7 @@ export default function ActiveList({ passes, classId }: { passes: ActivePass[]; 
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  useLiveRefresh({ channel: `teacher-passes-${classId}`, table: 'passes', filter: `class_id=eq.${classId}`, pollMs: 30_000 })
+  useLiveRefresh({ channel: `teacher-passes-${classId}`, table: 'passes', filter: `class_id=eq.${classId}`, pollMs: 60_000 })
 
   function handleCancel(passId: string) {
     setError(null)
