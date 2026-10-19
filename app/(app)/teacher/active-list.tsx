@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useState, useTransition } from 'react'
+import { useLiveRefresh } from '@/lib/realtime/use-live-refresh'
 import { cancelPassAction } from './actions'
 import { PassTicket } from '@/components/ui/pass-ticket'
 import { Badge } from '@/components/ui/badge'
@@ -17,23 +16,10 @@ type ActivePass = {
 }
 
 export default function ActiveList({ passes, classId }: { passes: ActivePass[]; classId: string }) {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`teacher-passes-${classId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'passes', filter: `class_id=eq.${classId}` },
-        () => router.refresh()
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [classId, router])
+  useLiveRefresh({ channel: `teacher-passes-${classId}`, table: 'passes', filter: `class_id=eq.${classId}`, pollMs: 30_000 })
 
   function handleCancel(passId: string) {
     setError(null)

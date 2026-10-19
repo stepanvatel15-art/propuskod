@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useState, useTransition } from 'react'
+import { useLiveRefresh } from '@/lib/realtime/use-live-refresh'
 import { deleteAttendanceMarkAction, type AttendanceKind } from './attendance-actions'
 import { formatTime } from '@/lib/format/datetime'
 import { Card } from '@/components/ui/card'
@@ -24,23 +23,10 @@ export default function TodayList({
   kind: AttendanceKind
   buildingId: string
 }) {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`attendance-${kind}-${buildingId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'attendance_marks', filter: `building_id=eq.${buildingId}` },
-        () => router.refresh()
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [kind, buildingId, router])
+  useLiveRefresh({ channel: `attendance-${kind}-${buildingId}`, table: 'attendance_marks', filter: `building_id=eq.${buildingId}`, pollMs: 30_000 })
 
   function handleDelete(markId: string) {
     setError(null)

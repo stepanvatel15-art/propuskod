@@ -1,8 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useLiveRefresh } from '@/lib/realtime/use-live-refresh'
 import { Card } from '@/components/ui/card'
 import type { StudentStat } from './get-attendance-stats'
 
@@ -13,21 +11,8 @@ export default function StatsTable({
   stats: StudentStat[]
   classId: string
 }) {
-  const router = useRouter()
 
-  useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`attendance-stats-${classId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'attendance_marks', filter: `class_id=eq.${classId}` },
-        () => router.refresh()
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [classId, router])
+  useLiveRefresh({ channel: `attendance-stats-${classId}`, table: 'attendance_marks', filter: `class_id=eq.${classId}`, pollMs: 60_000 })
 
   if (stats.length === 0) {
     return (

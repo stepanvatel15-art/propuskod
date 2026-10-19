@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useState, useTransition } from 'react'
+import { useLiveRefresh } from '@/lib/realtime/use-live-refresh'
 import { markPassUsedAction, cancelPassAction } from './actions'
 import { formatTime } from '@/lib/format/datetime'
 import { lessonLabel } from '@/lib/school/lessons'
@@ -21,27 +20,10 @@ type DutyPass = {
 }
 
 export default function DutyQueue({ passes, buildingId }: { passes: DutyPass[]; buildingId: string }) {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`duty-passes-${buildingId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'passes', filter: `building_id=eq.${buildingId}` },
-        () => {
-          // события могут добавлять новые связанные ФИО/классы, которых нет в payload —
-          // проще и надёжнее перезапросить страницу целиком, чем склеивать данные на клиенте
-          router.refresh()
-        }
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [buildingId, router])
+  useLiveRefresh({ channel: `duty-passes-${buildingId}`, table: 'passes', filter: `building_id=eq.${buildingId}`, pollMs: 10_000 })
 
   function handleMarkUsed(passId: string) {
     setError(null)
